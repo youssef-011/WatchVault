@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../application/library_controller.dart';
@@ -39,39 +40,44 @@ class LibraryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = LibraryScope.of(context);
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, child) => DefaultTabController(
-        length: _tabs.length,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Library'),
-            bottom: TabBar(
-              tabs: [for (final tab in _tabs) Tab(text: tab.label)],
-            ),
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Library'),
+          bottom: TabBar(
+            tabs: [for (final tab in _tabs) Tab(text: tab.label)],
           ),
-          body: TabBarView(
+        ),
+        body: LoadStateView(
+          controller: controller,
+          childBuilder: (context) => TabBarView(
             children: [
               for (final tab in _tabs)
                 _LibraryGrid(tab: tab, controller: controller),
             ],
           ),
-          floatingActionButton: Builder(
-            builder: (context) => FloatingActionButton.extended(
-              onPressed: () async {
-                final result = await Navigator.of(context)
-                    .pushNamed<AddTitleResult>(AppRoutes.addTitle);
-                if (!context.mounted || result == null) {
-                  return;
-                }
-                controller.addTitle(result);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Added')),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Add title'),
-            ),
+        ),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton.extended(
+            onPressed: () async {
+              final result = await Navigator.of(context)
+                  .pushNamed<AddTitleResult>(AppRoutes.addTitle);
+              if (!context.mounted || result == null) {
+                return;
+              }
+              await controller.addTitle(result);
+              if (!context.mounted) {
+                return;
+              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(controller.errorMessage ?? 'Added'),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Add title'),
           ),
         ),
       ),

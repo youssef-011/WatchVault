@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/features/home/presentation/home_screen.dart';
-import 'package:watchvault/features/library/application/library_controller.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/library/presentation/library_screen.dart';
+
+import 'helpers/library_test_helpers.dart';
 
 void main() {
   testWidgets('home and library fit phone and tablet layouts at larger text', (
@@ -12,7 +13,7 @@ void main() {
   ) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final controller = LibraryController();
+    final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
     tester.view.devicePixelRatio = 1;
 

@@ -3,16 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/router/app_routes.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/core/widgets/media_card.dart';
-import 'package:watchvault/features/library/application/library_controller.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/library/domain/watch_status.dart';
 import 'package:watchvault/features/shell/presentation/main_shell.dart';
+
+import 'helpers/library_test_helpers.dart';
 
 void main() {
   testWidgets('added titles search, and detail status updates profile count', (
     tester,
   ) async {
-    final controller = LibraryController();
+    final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
@@ -25,6 +26,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Library').last);
     await tester.pumpAndSettle();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../library/application/library_scope.dart';
@@ -16,6 +17,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
+
   @override
   void dispose() {
     _controller.dispose();
@@ -25,23 +27,23 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final library = LibraryScope.of(context);
-    return ListenableBuilder(
-      listenable: library,
-      builder: (context, child) {
-        final query = _controller.text.trim();
-        final normalizedQuery = query.toLowerCase();
-        final matches = normalizedQuery.isEmpty
-            ? const <MediaItem>[]
-            : library.catalog
-                .where(
-                  (item) =>
-                      item.title.toLowerCase().contains(normalizedQuery),
-                )
-                .toList(growable: false);
+    return Scaffold(
+      appBar: AppBar(title: const Text('Search')),
+      body: LoadStateView(
+        controller: library,
+        childBuilder: (context) {
+          final query = _controller.text.trim();
+          final normalizedQuery = query.toLowerCase();
+          final matches = normalizedQuery.isEmpty
+              ? const <MediaItem>[]
+              : library.catalog
+                  .where(
+                    (item) =>
+                        item.title.toLowerCase().contains(normalizedQuery),
+                  )
+                  .toList(growable: false);
 
-        return Scaffold(
-          appBar: AppBar(title: const Text('Search')),
-          body: Column(
+          return Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -74,9 +76,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

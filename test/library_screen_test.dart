@@ -3,13 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/router/app_routes.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/core/widgets/media_card.dart';
-import 'package:watchvault/features/library/application/library_controller.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/library/presentation/library_screen.dart';
 
+import 'helpers/library_test_helpers.dart';
+
 void main() {
   testWidgets('library shows three tabs and watched media cards', (tester) async {
-    final controller = LibraryController();
+    final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       LibraryScope(
@@ -21,6 +22,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Want to Watch'), findsOneWidget);
     expect(find.text('Watching'), findsOneWidget);
@@ -33,7 +35,7 @@ void main() {
   });
 
   testWidgets('library Add title button opens the form', (tester) async {
-    final controller = LibraryController();
+    final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       LibraryScope(
@@ -45,6 +47,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     await tester.tap(find.text('Add title'));
     await tester.pumpAndSettle();

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
-import 'package:watchvault/features/library/application/library_controller.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/profile/presentation/profile_screen.dart';
 
+import 'helpers/library_test_helpers.dart';
+
 void main() {
   testWidgets('profile shows stats and a coming soon snackbar', (tester) async {
-    final controller = LibraryController();
+    final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(
       LibraryScope(
@@ -18,6 +19,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Want to Watch'), findsOneWidget);
     expect(find.text('Watching'), findsOneWidget);

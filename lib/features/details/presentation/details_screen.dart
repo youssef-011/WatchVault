@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/poster_image.dart';
 import '../../library/application/library_controller.dart';
 import '../../library/application/library_scope.dart';
@@ -20,9 +23,9 @@ class DetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = LibraryScope.of(context);
-    return ListenableBuilder(
-      listenable: controller,
-      builder: (context, child) {
+    return LoadStateView(
+      controller: controller,
+      childBuilder: (context) {
         final entry = controller.entryFor(item.id);
         return _buildDetails(context, controller, entry);
       },
@@ -146,7 +149,11 @@ class DetailsScreen extends StatelessWidget {
                   ),
                   if (entry == null)
                     ElevatedButton.icon(
-                      onPressed: () => controller.addExistingMedia(item.id),
+                      onPressed: () => _runMutation(
+                        context,
+                        controller,
+                        () => controller.addExistingMedia(item.id),
+                      ),
                       icon: const Icon(Icons.bookmark_add_outlined),
                       label: const Text('Add to Library'),
                     )
@@ -168,9 +175,10 @@ class DetailsScreen extends StatelessWidget {
                         ),
                       ],
                       selected: {entry.status},
-                      onSelectionChanged: (selection) => controller.setStatus(
-                        item.id,
-                        selection.first,
+                      onSelectionChanged: (selection) => _runMutation(
+                        context,
+                        controller,
+                        () => controller.setStatus(item.id, selection.first),
                       ),
                     ),
                     if (entry.status == WatchStatus.watched) ...[
@@ -188,15 +196,23 @@ class DetailsScreen extends StatelessWidget {
                         label: entry.userRating?.toStringAsFixed(1) ?? '—',
                         onChanged: (rating) {
                           final halfStepRating = (rating * 2).round() / 2;
-                          controller.setRating(
-                            item.id,
-                            halfStepRating == 0 ? null : halfStepRating,
+                          _runMutation(
+                            context,
+                            controller,
+                            () => controller.setRating(
+                              item.id,
+                              halfStepRating == 0 ? null : halfStepRating,
+                            ),
                           );
                         },
                       ),
                     ],
                     TextButton(
-                      onPressed: () => controller.removeEntry(item.id),
+                      onPressed: () => _runMutation(
+                        context,
+                        controller,
+                        () => controller.removeEntry(item.id),
+                      ),
                       child: const Text('Remove from library'),
                     ),
                   ],
@@ -208,6 +224,22 @@ class DetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void _runMutation(
+  BuildContext context,
+  LibraryController controller,
+  Future<void> Function() mutation,
+) {
+  unawaited(() async {
+    await mutation();
+    if (!context.mounted || controller.errorMessage == null) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(controller.errorMessage!)),
+    );
+  }());
 }
 
 
