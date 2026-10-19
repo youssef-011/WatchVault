@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/media_card.dart';
+import '../../../core/widgets/media_card_sizing.dart';
 import '../../details/presentation/details_screen.dart';
 import '../../home/data/mock_media.dart';
 import '../data/mock_library.dart';
@@ -46,9 +47,7 @@ class LibraryScreen extends StatelessWidget {
           ),
         ),
         body: TabBarView(
-          children: [
-            for (final tab in _tabs) _LibraryGrid(tab: tab),
-          ],
+          children: [for (final tab in _tabs) _LibraryGrid(tab: tab)],
         ),
       ),
     );
@@ -90,35 +89,36 @@ class _LibraryGrid extends StatelessWidget {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.54,
+    return LayoutBuilder(
+      builder: (context, constraints) => GridView.builder(
+        padding: const EdgeInsets.fromLTRB(
+          mediaCardGridPadding,
+          16,
+          mediaCardGridPadding,
+          24,
+        ),
+        gridDelegate: mediaCardGridDelegate(context, constraints.maxWidth),
+        itemCount: entries.length,
+        itemBuilder: (context, index) {
+          final entry = entries[index];
+          final item = mediaById(entry.mediaId);
+          if (item == null) {
+            return const SizedBox.shrink();
+          }
+          return LayoutBuilder(
+            builder: (context, constraints) => MediaCard(
+              item: item,
+              width: constraints.maxWidth,
+              onTap: () => Navigator.of(context).push(DetailsScreen.route(item)),
+              userRating: tab.status == WatchStatus.watched
+                  ? entry.userRating
+                  : null,
+            ),
+          );
+        },
       ),
-      itemCount: entries.length,
-      itemBuilder: (context, index) {
-        final entry = entries[index];
-        final item = mediaById(entry.mediaId);
-        if (item == null) {
-          return const SizedBox.shrink();
-        }
-        return MediaCard(
-          item: item,
-          onTap: () => Navigator.of(context).push(DetailsScreen.route(item)),
-          userRating: tab.status == WatchStatus.watched
-              ? entry.userRating
-              : null,
-        );
-      },
     );
   }
 }
-
-
-
-
 
 

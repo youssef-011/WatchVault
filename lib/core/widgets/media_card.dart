@@ -10,11 +10,13 @@ class MediaCard extends StatelessWidget {
     required this.item,
     this.onTap,
     this.userRating,
+    this.width = 140,
   });
 
   final MediaItem item;
   final VoidCallback? onTap;
   final double? userRating;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class MediaCard extends StatelessWidget {
     };
 
     return SizedBox(
-      width: 140,
+      width: width,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -125,4 +127,3 @@ class MediaCard extends StatelessWidget {
     );
   }
 }
-

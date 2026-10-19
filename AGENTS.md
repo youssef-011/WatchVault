@@ -23,3 +23,9 @@
 
 ## Out of scope
 - State management, Firebase, networking, mock data, assets, localization, and packages beyond the existing `flutter_lints` development dependency.
+
+## UI rules
+- Avoid unnecessary nested `Container` and `Padding`; use only what is needed.
+- Avoid large hardcoded sizes; prefer `Expanded`, `Flexible`, `MediaQuery`, or theme spacing.
+- Layouts must work on small phone, large phone, and tablet widths.
+- Use `const` wherever possible.

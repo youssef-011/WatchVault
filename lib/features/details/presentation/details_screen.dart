@@ -25,6 +25,8 @@ class DetailsScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final entry = libraryEntryFor(item.id);
+    final expandedHeight =
+        (MediaQuery.sizeOf(context).height * 0.45).clamp(240.0, 360.0).toDouble();
     final typeLabel = switch (item.type) {
       MediaType.movie => 'Movie',
       MediaType.series => 'Series',
@@ -35,7 +37,7 @@ class DetailsScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            expandedHeight: 360,
+            expandedHeight: expandedHeight,
             title: Text(item.title),
             flexibleSpace: FlexibleSpaceBar(
               background: PosterPlaceholder(item: item),
@@ -47,11 +49,28 @@ class DetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    item.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          item.title,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (item.voteAverage != null) ...[
+                        const SizedBox(width: 8),
+                        Chip(
+                          avatar: Icon(
+                            Icons.star_rounded,
+                            color: colorScheme.tertiary,
+                          ),
+                          label: Text(item.voteAverage!.toStringAsFixed(1)),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -60,14 +79,6 @@ class DetailsScreen extends StatelessWidget {
                     children: [
                       if (item.year != null) Chip(label: Text('${item.year}')),
                       Chip(label: Text(typeLabel)),
-                      if (item.voteAverage != null)
-                        Chip(
-                          avatar: Icon(
-                            Icons.star_rounded,
-                            color: colorScheme.tertiary,
-                          ),
-                          label: Text(item.voteAverage!.toStringAsFixed(1)),
-                        ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -131,3 +142,5 @@ class DetailsScreen extends StatelessWidget {
     );
   }
 }
+
+
