@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/library/domain/media_item.dart';
 import '../../features/library/domain/media_type.dart';
-import 'poster_placeholder.dart';
+import 'poster_image.dart';
 
 class MediaCard extends StatelessWidget {
   const MediaCard({
@@ -43,7 +43,7 @@ class MediaCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    PosterPlaceholder(item: item),
+                    PosterImage(item: item),
                     if (item.voteAverage != null)
                       Positioned(
                         top: 8,

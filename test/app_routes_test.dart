@@ -4,6 +4,8 @@ import 'package:watchvault/core/router/app_routes.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
 import 'package:watchvault/features/home/data/mock_media.dart';
+import 'package:watchvault/features/library/application/library_controller.dart';
+import 'package:watchvault/features/library/application/library_scope.dart';
 
 void main() {
   testWidgets('unknown named route shows NotFoundScreen', (tester) async {
@@ -57,18 +59,23 @@ void main() {
 
   testWidgets('details route passes its MediaItem argument', (tester) async {
     final item = mockMedia.first;
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () => Navigator.of(context).pushNamed(
-                AppRoutes.details,
-                arguments: item,
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => Navigator.of(context).pushNamed(
+                  AppRoutes.details,
+                  arguments: item,
+                ),
+                child: const Text('Open details'),
               ),
-              child: const Text('Open details'),
             ),
           ),
         ),

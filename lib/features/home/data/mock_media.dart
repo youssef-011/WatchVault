@@ -124,12 +124,3 @@ List<MediaItem> get topRated {
     ..sort((a, b) => b.voteAverage!.compareTo(a.voteAverage!));
   return List<MediaItem>.unmodifiable(items.take(6));
 }
-
-MediaItem? mediaById(int id) {
-  for (final item in mockMedia) {
-    if (item.id == id) {
-      return item;
-    }
-  }
-  return null;
-}

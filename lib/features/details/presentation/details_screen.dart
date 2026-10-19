@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/widgets/poster_placeholder.dart';
-import '../../../features/library/data/mock_library.dart';
-import '../../../features/library/domain/media_item.dart';
-import '../../../features/library/domain/media_type.dart';
-import '../../../features/library/domain/watch_status_label.dart';
+import '../../../core/widgets/poster_image.dart';
+import '../../library/application/library_controller.dart';
+import '../../library/application/library_scope.dart';
+import '../../library/domain/library_entry.dart';
+import '../../library/domain/media_item.dart';
+import '../../library/domain/media_type.dart';
+import '../../library/domain/watch_status.dart';
+import '../../library/domain/watch_status_label.dart';
 
 class DetailsScreen extends StatelessWidget {
   const DetailsScreen({
@@ -16,9 +19,23 @@ class DetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = LibraryScope.of(context);
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) {
+        final entry = controller.entryFor(item.id);
+        return _buildDetails(context, controller, entry);
+      },
+    );
+  }
+
+  Widget _buildDetails(
+    BuildContext context,
+    LibraryController controller,
+    LibraryEntry? entry,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final entry = libraryEntryFor(item.id);
     final expandedHeight =
         (MediaQuery.sizeOf(context).height * 0.45).clamp(240.0, 360.0).toDouble();
     final typeLabel = switch (item.type) {
@@ -34,7 +51,7 @@ class DetailsScreen extends StatelessWidget {
             expandedHeight: expandedHeight,
             title: Text(item.title),
             flexibleSpace: FlexibleSpaceBar(
-              background: PosterPlaceholder(item: item),
+              background: PosterImage(item: item),
             ),
           ),
           SliverPadding(
@@ -127,6 +144,62 @@ class DetailsScreen extends StatelessWidget {
                             ),
                     ),
                   ),
+                  if (entry == null)
+                    ElevatedButton.icon(
+                      onPressed: () => controller.addExistingMedia(item.id),
+                      icon: const Icon(Icons.bookmark_add_outlined),
+                      label: const Text('Add to Library'),
+                    )
+                  else ...[
+                    const SizedBox(height: 12),
+                    SegmentedButton<WatchStatus>(
+                      segments: const [
+                        ButtonSegment(
+                          value: WatchStatus.wantToWatch,
+                          label: Text('Want'),
+                        ),
+                        ButtonSegment(
+                          value: WatchStatus.watching,
+                          label: Text('Watching'),
+                        ),
+                        ButtonSegment(
+                          value: WatchStatus.watched,
+                          label: Text('Watched'),
+                        ),
+                      ],
+                      selected: {entry.status},
+                      onSelectionChanged: (selection) => controller.setStatus(
+                        item.id,
+                        selection.first,
+                      ),
+                    ),
+                    if (entry.status == WatchStatus.watched) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Your rating: '
+                        '${entry.userRating?.toStringAsFixed(1) ?? '—'}',
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      Slider(
+                        min: 0,
+                        max: 5,
+                        divisions: 9,
+                        value: entry.userRating ?? 0,
+                        label: entry.userRating?.toStringAsFixed(1) ?? '—',
+                        onChanged: (rating) {
+                          final halfStepRating = (rating * 2).round() / 2;
+                          controller.setRating(
+                            item.id,
+                            halfStepRating == 0 ? null : halfStepRating,
+                          );
+                        },
+                      ),
+                    ],
+                    TextButton(
+                      onPressed: () => controller.removeEntry(item.id),
+                      child: const Text('Remove from library'),
+                    ),
+                  ],
                 ],
               ),
             ),

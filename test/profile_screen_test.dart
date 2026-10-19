@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
+import 'package:watchvault/features/library/application/library_controller.dart';
+import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/profile/presentation/profile_screen.dart';
 
 void main() {
   testWidgets('profile shows stats and a coming soon snackbar', (tester) async {
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        home: const ProfileScreen(),
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const ProfileScreen(),
+        ),
       ),
     );
 

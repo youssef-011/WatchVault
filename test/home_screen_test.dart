@@ -5,14 +5,21 @@ import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/core/widgets/media_card.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
 import 'package:watchvault/features/home/presentation/home_screen.dart';
+import 'package:watchvault/features/library/application/library_controller.dart';
+import 'package:watchvault/features/library/application/library_scope.dart';
 
 void main() {
   testWidgets('home displays its media sections and cards', (tester) async {
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
-        home: const HomeScreen(),
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: const HomeScreen(),
+        ),
       ),
     );
 
@@ -30,11 +37,16 @@ void main() {
   });
 
   testWidgets('tapping a media card opens its details screen', (tester) async {
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
-        home: const HomeScreen(),
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: const HomeScreen(),
+        ),
       ),
     );
 

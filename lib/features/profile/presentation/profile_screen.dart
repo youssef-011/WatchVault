@@ -1,43 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../../features/library/data/mock_library.dart';
-import '../../../features/library/domain/watch_status.dart';
+import '../../library/application/library_scope.dart';
+import '../../library/domain/watch_status.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var wantToWatchCount = 0;
-    var watchingCount = 0;
-    var watchedCount = 0;
-    var ratingTotal = 0.0;
-    var ratedEntryCount = 0;
-
-    for (final entry in mockLibrary) {
-      switch (entry.status) {
-        case WatchStatus.wantToWatch:
-          wantToWatchCount++;
-          break;
-        case WatchStatus.watching:
-          watchingCount++;
-          break;
-        case WatchStatus.watched:
-          watchedCount++;
-          break;
-      }
-      if (entry.userRating != null) {
-        ratingTotal += entry.userRating!;
-        ratedEntryCount++;
-      }
-    }
-
-    final averageRating =
-        ratedEntryCount == 0 ? null : ratingTotal / ratedEntryCount;
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
+    final controller = LibraryScope.of(context);
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, child) {
+        final averageRating = controller.averageRating;
+        final theme = Theme.of(context);
+        return Scaffold(
+          appBar: AppBar(
         title: const Text('Profile'),
         actions: [
           IconButton(
@@ -47,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+          body: SingleChildScrollView(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
@@ -86,7 +64,7 @@ class ProfileScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: _StatItem(
-                              count: wantToWatchCount,
+                              count: controller.countFor(WatchStatus.wantToWatch),
                               label: 'Want to Watch',
                             ),
                           ),
@@ -97,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           Expanded(
                             child: _StatItem(
-                              count: watchingCount,
+                              count: controller.countFor(WatchStatus.watching),
                               label: 'Watching',
                             ),
                           ),
@@ -108,7 +86,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           Expanded(
                             child: _StatItem(
-                              count: watchedCount,
+                              count: controller.countFor(WatchStatus.watched),
                               label: 'Watched',
                             ),
                           ),
@@ -125,20 +103,15 @@ class ProfileScreen extends StatelessWidget {
                         style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(width: 8),
-                      if (averageRating != null) ...[
+                      if (averageRating != null)
                         Icon(
                           Icons.star_rounded,
                           color: theme.colorScheme.tertiary,
                         ),
-                        Text(
-                          '${averageRating.toStringAsFixed(1)} / 5',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ] else
-                        Text(
-                          'No ratings yet',
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                      Text(
+                        averageRating?.toStringAsFixed(1) ?? '—',
+                        style: theme.textTheme.titleMedium,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -160,6 +133,8 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ),
+        );
+      },
     );
   }
 

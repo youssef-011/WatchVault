@@ -3,16 +3,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/core/widgets/empty_state.dart';
 import 'package:watchvault/core/widgets/media_card.dart';
+import 'package:watchvault/features/library/application/library_controller.dart';
+import 'package:watchvault/features/library/application/library_scope.dart';
 import 'package:watchvault/features/search/presentation/search_screen.dart';
 
 void main() {
   testWidgets('search filters titles and clears back to the prompt', (
     tester,
   ) async {
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        home: const SearchScreen(),
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const SearchScreen(),
+        ),
       ),
     );
 

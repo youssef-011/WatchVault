@@ -53,13 +53,3 @@ final List<LibraryEntry> mockLibrary = List<LibraryEntry>.unmodifiable([
   ),
 ]);
 
-
-LibraryEntry? libraryEntryFor(int mediaId) {
-  for (final entry in mockLibrary) {
-    if (entry.mediaId == mediaId) {
-      return entry;
-    }
-  }
-  return null;
-}
-

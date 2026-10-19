@@ -3,17 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
 import 'package:watchvault/features/home/data/mock_media.dart';
+import 'package:watchvault/features/library/application/library_controller.dart';
+import 'package:watchvault/features/library/application/library_scope.dart';
 
 void main() {
   testWidgets('details screen shows the title and overview section', (
     tester,
   ) async {
     final item = mockMedia.first;
+    final controller = LibraryController();
+    addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        home: DetailsScreen(item: item),
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: DetailsScreen(item: item),
+        ),
       ),
     );
 

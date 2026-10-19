@@ -4,7 +4,7 @@ import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
-import '../../home/data/mock_media.dart';
+import '../../library/application/library_scope.dart';
 import '../../library/domain/media_item.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -16,8 +16,6 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _controller = TextEditingController();
-  late final List<MediaItem> _allMedia = _collectUniqueMedia();
-
   @override
   void dispose() {
     _controller.dispose();
@@ -26,45 +24,59 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final query = _controller.text.trim();
-    final normalizedQuery = query.toLowerCase();
-    final matches = normalizedQuery.isEmpty
-        ? const <MediaItem>[]
-        : _allMedia
-            .where((item) => item.title.toLowerCase().contains(normalizedQuery))
-            .toList(growable: false);
+    final library = LibraryScope.of(context);
+    return ListenableBuilder(
+      listenable: library,
+      builder: (context, child) {
+        final query = _controller.text.trim();
+        final normalizedQuery = query.toLowerCase();
+        final matches = normalizedQuery.isEmpty
+            ? const <MediaItem>[]
+            : library.catalog
+                .where(
+                  (item) =>
+                      item.title.toLowerCase().contains(normalizedQuery),
+                )
+                .toList(growable: false);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Search')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _controller,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: 'Search movies and series',
-                prefixIcon: const Icon(Icons.search),
-                border: const OutlineInputBorder(),
-                suffixIcon: _controller.text.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: 'Clear search',
-                        onPressed: () {
-                          _controller.clear();
-                          setState(() {});
-                        },
-                        icon: const Icon(Icons.clear),
-                      ),
+        return Scaffold(
+          appBar: AppBar(title: const Text('Search')),
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  controller: _controller,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: 'Search movies and series',
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _controller.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Clear search',
+                            onPressed: () {
+                              _controller.clear();
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.clear),
+                          ),
+                  ),
+                ),
               ),
-            ),
+              Expanded(
+                child: _buildResults(
+                  context,
+                  query,
+                  normalizedQuery,
+                  matches,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: _buildResults(context, query, normalizedQuery, matches),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -110,13 +122,5 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
-  }
-
-  List<MediaItem> _collectUniqueMedia() {
-    final seenIds = <int>{};
-    final items = [...trending, ...popularSeries, ...topRated];
-    return items
-        .where((item) => seenIds.add(item.id))
-        .toList(growable: false);
   }
 }
