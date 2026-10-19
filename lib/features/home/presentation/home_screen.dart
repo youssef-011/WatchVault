@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/media_card.dart';
-import '../../library/domain/media_item.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../details/presentation/details_screen.dart';
+import '../../library/domain/media_item.dart';
 import '../data/mock_media.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -10,11 +11,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return CustomScrollView(
       slivers: [
-        const SliverAppBar(
+        SliverAppBar(
           floating: true,
-          title: Text('WatchVault'),
+          title: Text(
+            'WatchVault',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
         _MediaSection(title: 'Trending', items: trending),
         _MediaSection(title: 'Popular Series', items: popularSeries),
@@ -45,13 +53,18 @@ class _MediaSection extends StatelessWidget {
             height: 292,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
               itemCount: items.length,
               itemBuilder: (context, index) => Padding(
-                padding: EdgeInsets.only(
-                  right: index == items.length - 1 ? 0 : 12,
+                padding: EdgeInsetsDirectional.only(
+                  end: index == items.length - 1 ? 0 : 12,
                 ),
-                child: MediaCard(item: items[index]),
+                child: MediaCard(
+                  item: items[index],
+                  onTap: () => Navigator.of(context).push(
+                    DetailsScreen.route(items[index]),
+                  ),
+                ),
               ),
             ),
           ),
@@ -60,6 +73,5 @@ class _MediaSection extends StatelessWidget {
     );
   }
 }
-
 
 
