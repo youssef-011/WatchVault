@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../../core/widgets/section_header.dart';
-import '../../details/presentation/details_screen.dart';
 import '../../library/domain/media_item.dart';
 import '../data/mock_media.dart';
 
@@ -86,8 +86,9 @@ class _MediaSection extends StatelessWidget {
                 child: MediaCard(
                   item: items[index],
                   width: cardWidth,
-                  onTap: () => Navigator.of(context).push(
-                    DetailsScreen.route(items[index]),
+                  onTap: () => Navigator.of(context).pushNamed(
+                    AppRoutes.details,
+                    arguments: items[index],
                   ),
                 ),
               ),

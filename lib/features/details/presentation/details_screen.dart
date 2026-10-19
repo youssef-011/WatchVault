@@ -14,12 +14,6 @@ class DetailsScreen extends StatelessWidget {
 
   final MediaItem item;
 
-  static Route<void> route(MediaItem item) {
-    return MaterialPageRoute<void>(
-      builder: (_) => DetailsScreen(item: item),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

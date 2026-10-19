@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:watchvault/core/router/app_routes.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/core/widgets/media_card.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
@@ -10,6 +11,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
         home: const HomeScreen(),
       ),
     );
@@ -31,6 +33,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
         home: const HomeScreen(),
       ),
     );

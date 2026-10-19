@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/router/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/shell/presentation/main_shell.dart';
 
@@ -14,6 +15,7 @@ class WatchVaultApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
       home: const MainShell(),
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 }

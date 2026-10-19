@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
-import '../../details/presentation/details_screen.dart';
 import '../../home/data/mock_media.dart';
 import '../../library/domain/media_item.dart';
 
@@ -102,8 +102,9 @@ class _SearchScreenState extends State<SearchScreen> {
           builder: (context, constraints) => MediaCard(
             item: matches[index],
             width: constraints.maxWidth,
-            onTap: () => Navigator.of(context).push(
-              DetailsScreen.route(matches[index]),
+            onTap: () => Navigator.of(context).pushNamed(
+              AppRoutes.details,
+              arguments: matches[index],
             ),
           ),
         ),

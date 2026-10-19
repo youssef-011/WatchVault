@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/router/app_routes.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
-import '../../details/presentation/details_screen.dart';
 import '../../home/data/mock_media.dart';
 import '../data/mock_library.dart';
+import '../domain/add_title_result.dart';
 import '../domain/watch_status.dart';
 
 class LibraryScreen extends StatelessWidget {
@@ -48,6 +49,26 @@ class LibraryScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [for (final tab in _tabs) _LibraryGrid(tab: tab)],
+        ),
+        floatingActionButton: Builder(
+          builder: (context) => FloatingActionButton.extended(
+            onPressed: () async {
+              final result = await Navigator.of(context)
+                  .pushNamed<AddTitleResult>(AppRoutes.addTitle);
+              if (!context.mounted || result == null) {
+                return;
+              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '“${result.mediaItem.title}” added (not saved yet)',
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Add title'),
+          ),
         ),
       ),
     );
@@ -109,7 +130,10 @@ class _LibraryGrid extends StatelessWidget {
             builder: (context, constraints) => MediaCard(
               item: item,
               width: constraints.maxWidth,
-              onTap: () => Navigator.of(context).push(DetailsScreen.route(item)),
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.details,
+                arguments: item,
+              ),
               userRating: tab.status == WatchStatus.watched
                   ? entry.userRating
                   : null,
