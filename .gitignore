@@ -46,3 +46,10 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Local secrets and signing files
+.env
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
