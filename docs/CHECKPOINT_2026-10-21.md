@@ -44,15 +44,15 @@ Workflow: the maintainer decides, Claude writes prompts, Codex writes files only
 
 ## 4. Real versus mock
 
-- Home catalog sections and Search use `CatalogRepository`, whose app default is the TMDB implementation (`lib/app.dart`, `lib/features/home/`, `lib/features/search/`, `lib/features/catalog/data/tmdb_catalog_repository.dart`). Search also includes locally-created negative-ID titles from the library catalog (`features/search/application/search_results_controller.dart`).
+- Home catalog sections and Search use `CatalogRepository`, whose app default is the TMDB implementation (`lib/app.dart`, `lib/features/home/`, `lib/features/search/`, `lib/features/catalog/data/tmdb_catalog_repository.dart`). Search additionally filters the library catalog to negative-ID items, matches their titles against the normalized query, and merges them with catalog results by `MediaKey` (`lib/features/search/presentation/search_screen.dart`, `lib/features/search/application/search_results_controller.dart`).
 - Details loads TMDB metadata for nonnegative IDs (`features/details/application/details_controller.dart`). Library activity shown there is local in-memory state.
 - Library contents, Profile counts/average, and Add Title are in-memory only (`lib/features/library/data/in_memory_library_repository.dart`, `features/library/application/library_controller.dart`). Initial fixtures are `lib/features/home/data/mock_media.dart` and `lib/features/library/data/mock_library.dart`; the in-memory repository copies these lists.
 - `lib/features/catalog/data/fake_catalog_repository.dart` is a test/development fake, not the app's default live catalog.
 
 ## 5. Known issues and TODO
 
-- The previously reported Library FAB overlap appears addressed: grid bottom padding uses `kFloatingActionButtonMargin + AppSpacing.fabHeight` (`lib/features/library/presentation/library_screen.dart`, `lib/core/theme/app_spacing.dart`). Visual verification remains pending.
-- The previously reported duplicate Details title and missing poster scrim appear addressed: the current `SliverAppBar` has no title and its poster stack has a dark top gradient (`lib/features/details/presentation/details_screen.dart`). Visual verification remains pending.
+- Each non-empty Library grid uses bottom padding `kFloatingActionButtonMargin + AppSpacing.fabHeight` (56 logical pixels) after its horizontal padding `mediaCardGridPadding` and top padding `AppSpacing.lg` (`lib/features/library/presentation/library_screen.dart`, `lib/core/theme/app_spacing.dart`). Whether this clears the FAB in practice is unverified; visual verification is pending.
+- Details `SliverAppBar` has no `title:` property; the title is displayed in the body. Its poster `Stack` overlays a top-to-bottom `LinearGradient` from `Colors.black.withValues(alpha: 0.48)` to transparent (`lib/features/details/presentation/details_screen.dart`). The code therefore does not show a duplicated AppBar title; visual verification is pending.
 - TMDB results map any nonzero `vote_average` to `MediaItem.voteAverage`; the app does not check vote count or release status before showing a rating (`lib/features/catalog/data/tmdb_catalog_repository.dart`, `lib/core/widgets/media_card.dart`).
 - Nullable values cannot be cleared through current `copyWith` methods because null means “keep the old value” (`lib/core/models/media_item.dart`, `lib/features/library/domain/library_entry.dart`).
 - The library controller catches repository failures and uses generic messages; no raw exception string is shown in the inspected controller (`lib/features/library/application/library_controller.dart`).
@@ -61,7 +61,7 @@ Workflow: the maintainer decides, Claude writes prompts, Codex writes files only
 
 ## 6. Next steps, in order
 
-1. **Phase 2b:** start Library empty; represent a library item as a `MediaItem` snapshot plus `LibraryEntry`; add any TMDB title to the library; move library mocks to `test/helpers`; fix the vote display and nullable clearing issues, and recheck the FAB/title/scrim polish.
+1. **Phase 2b:** start Library empty; represent a library item as a `MediaItem` snapshot plus `LibraryEntry`; add any TMDB title to the library; move library mocks to `test/helpers`.
 2. Add Firebase Auth login, registration, logout, and session handling.
 3. Store library documents at `users/{uid}/library/{mediaKey}` in Firestore, including the media snapshot; move the repository to a stream and add security rules.
 4. Add Profile editing for username, bio, and avatar.
