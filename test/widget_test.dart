@@ -1,9 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/app.dart';
+import 'package:watchvault/features/catalog/data/fake_catalog_repository.dart';
 
 void main() {
   testWidgets('app builds with four navigation tabs', (tester) async {
-    await tester.pumpWidget(const WatchVaultApp());
+    await tester.pumpWidget(
+      WatchVaultApp(catalog: FakeCatalogRepository()),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Home'), findsOneWidget);

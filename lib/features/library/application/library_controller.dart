@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
+import 'package:watchvault/core/models/load_status.dart';
 import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
 
@@ -8,8 +9,6 @@ import '../domain/add_title_result.dart';
 import '../domain/library_entry.dart';
 import '../domain/library_repository.dart';
 import '../domain/watch_status.dart';
-
-enum LibraryLoadState { loading, ready, error }
 
 class LibraryController extends ChangeNotifier {
   LibraryController({required this.repository}) {
@@ -22,17 +21,17 @@ class LibraryController extends ChangeNotifier {
   final List<LibraryEntry> _entries = [];
   late final List<MediaItem> _catalogView;
   late final List<LibraryEntry> _entriesView;
-  LibraryLoadState _loadState = LibraryLoadState.loading;
+  LoadStatus _loadState = LoadStatus.loading;
   String? _errorMessage;
   int _nextNegativeId = -1;
 
   List<MediaItem> get catalog => _catalogView;
   List<LibraryEntry> get entries => _entriesView;
-  LibraryLoadState get loadState => _loadState;
+  LoadStatus get loadState => _loadState;
   String? get errorMessage => _errorMessage;
 
   Future<void> load() async {
-    _loadState = LibraryLoadState.loading;
+    _loadState = LoadStatus.loading;
     _errorMessage = null;
     notifyListeners();
 
@@ -45,11 +44,11 @@ class LibraryController extends ChangeNotifier {
       _entries
         ..clear()
         ..addAll(entries);
-      _loadState = LibraryLoadState.ready;
+      _loadState = LoadStatus.ready;
       _errorMessage = null;
       notifyListeners();
     } catch (_) {
-      _loadState = LibraryLoadState.error;
+      _loadState = LoadStatus.error;
       _errorMessage = 'Unable to load your library. Please try again.';
       notifyListeners();
     }

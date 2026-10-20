@@ -7,13 +7,14 @@ import 'package:watchvault/features/details/presentation/details_screen.dart';
 import 'package:watchvault/features/home/presentation/home_screen.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 
+import 'helpers/controllable_catalog_repository.dart';
 import 'helpers/library_test_helpers.dart';
 
 void main() {
   testWidgets('home displays its media sections and cards', (tester) async {
     final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(
+    await tester.pumpWidget(withFakeCatalog(
       LibraryScope(
         controller: controller,
         child: MaterialApp(
@@ -22,11 +23,17 @@ void main() {
           home: const HomeScreen(),
         ),
       ),
-    );
+    ));
     await tester.pumpAndSettle();
 
     final mainScrollable = find.byType(Scrollable).first;
-    for (final title in ['Trending', 'Popular Series', 'Top Rated']) {
+    for (final title in [
+      'Trending',
+      'Popular Movies',
+      'Popular Series',
+      'Top Rated Movies',
+      'Top Rated Series',
+    ]) {
       await tester.scrollUntilVisible(
         find.text(title),
         300,
@@ -41,7 +48,7 @@ void main() {
   testWidgets('tapping a media card opens its details screen', (tester) async {
     final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(
+    await tester.pumpWidget(withFakeCatalog(
       LibraryScope(
         controller: controller,
         child: MaterialApp(
@@ -50,7 +57,7 @@ void main() {
           home: const HomeScreen(),
         ),
       ),
-    );
+    ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byType(MediaCard).first);
@@ -62,7 +69,7 @@ void main() {
   testWidgets('home section heroes have no duplicate tags', (tester) async {
     final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(
+    await tester.pumpWidget(withFakeCatalog(
       LibraryScope(
         controller: controller,
         child: MaterialApp(
@@ -71,11 +78,17 @@ void main() {
           home: const HomeScreen(),
         ),
       ),
-    );
+    ));
     await tester.pumpAndSettle();
 
     final mainScrollable = find.byType(Scrollable).first;
-    for (final section in ['Trending', 'Popular Series', 'Top Rated']) {
+    for (final section in [
+      'Trending',
+      'Popular Movies',
+      'Popular Series',
+      'Top Rated Movies',
+      'Top Rated Series',
+    ]) {
       await tester.scrollUntilVisible(
         find.text(section),
         300,
@@ -83,5 +96,33 @@ void main() {
       );
     }
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a failed home section offers an independent retry', (
+    tester,
+  ) async {
+    final controller = await createLoadedLibraryController();
+    addTearDown(controller.dispose);
+    final catalog = ControllableCatalogRepository()
+      ..failures.add('trending');
+    await tester.pumpWidget(withFakeCatalog(
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const HomeScreen(),
+        ),
+      ),
+      repository: catalog,
+    ));
+    await tester.pumpAndSettle();
+    expect(find.text('No connection. Check your internet and try again.'),
+        findsOneWidget);
+
+    catalog.failures.remove('trending');
+    await tester.tap(find.text('Retry').first);
+    await tester.pumpAndSettle();
+    expect(find.text('No connection. Check your internet and try again.'),
+        findsNothing);
   });
 }

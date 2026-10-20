@@ -91,7 +91,7 @@ void main() {
     final item = mockMedia.first;
     final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
-    await tester.pumpWidget(
+    await tester.pumpWidget(withFakeCatalog(
       LibraryScope(
         controller: controller,
         child: MaterialApp(
@@ -113,7 +113,7 @@ void main() {
           ),
         ),
       ),
-    );
+    ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Open details'));

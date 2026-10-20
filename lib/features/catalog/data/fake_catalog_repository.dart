@@ -40,7 +40,14 @@ class FakeCatalogRepository implements CatalogRepository {
   @override
   Future<MediaDetails> details(MediaKey key) async {
     for (final item in _items) {
-      if (item.key == key) return MediaDetails(item: item);
+      if (item.key == key) {
+        return MediaDetails(
+          item: item,
+          genres: const ['Drama'],
+          runtimeMinutes: item.type == MediaType.movie ? 166 : null,
+          seasons: item.type == MediaType.series ? 3 : null,
+        );
+      }
     }
     throw const CatalogException.notFound();
   }

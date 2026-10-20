@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_spacing.dart';
@@ -22,129 +24,142 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: LoadStateView(
-        controller: controller,
-        childBuilder: (context) {
-          final averageRating = controller.averageRating;
-          final theme = Theme.of(context);
-          return RefreshIndicator(
-            onRefresh: controller.load,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Center(
-                          child: CircleAvatar(
-                            radius: 48,
-                            child: Icon(Icons.person, size: 48),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          'Movie Lover',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'Your personal movie shelf',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.lg,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _StatItem(
-                                    count: controller
-                                        .countFor(WatchStatus.wantToWatch),
-                                    label: 'Want to Watch',
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 48,
-                                  color: theme.colorScheme.outlineVariant,
-                                ),
-                                Expanded(
-                                  child: _StatItem(
-                                    count: controller
-                                        .countFor(WatchStatus.watching),
-                                    label: 'Watching',
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 48,
-                                  color: theme.colorScheme.outlineVariant,
-                                ),
-                                Expanded(
-                                  child: _StatItem(
-                                    count: controller
-                                        .countFor(WatchStatus.watched),
-                                    label: 'Watched',
-                                  ),
-                                ),
-                              ],
+      body: ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) => LoadStateView(
+          status: controller.loadState,
+          errorMessage: controller.errorMessage,
+          onRetry: () => unawaited(controller.load()),
+          childBuilder: (context) {
+            final averageRating = controller.averageRating;
+            final theme = Theme.of(context);
+            return RefreshIndicator(
+              onRefresh: controller.load,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Center(
+                            child: CircleAvatar(
+                              radius: 48,
+                              child: Icon(Icons.person, size: 48),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Average rating',
-                              style: theme.textTheme.titleMedium,
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            'Movie Lover',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
-                            const SizedBox(width: AppSpacing.sm),
-                            if (averageRating != null)
-                              Icon(
-                                Icons.star_rounded,
-                                color: theme.colorScheme.tertiary,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            'Your personal movie shelf',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xl),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.lg,
                               ),
-                            Text(
-                              averageRating?.toStringAsFixed(1) ?? '—',
-                              style: theme.textTheme.titleMedium,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _StatItem(
+                                      count: controller
+                                          .countFor(WatchStatus.wantToWatch),
+                                      label: 'Want to Watch',
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 48,
+                                    color: theme.colorScheme.outlineVariant,
+                                  ),
+                                  Expanded(
+                                    child: _StatItem(
+                                      count: controller
+                                          .countFor(WatchStatus.watching),
+                                      label: 'Watching',
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 48,
+                                    color: theme.colorScheme.outlineVariant,
+                                  ),
+                                  Expanded(
+                                    child: _StatItem(
+                                      count: controller
+                                          .countFor(WatchStatus.watched),
+                                      label: 'Watched',
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () => _showComingSoon(context),
-                          child: const Text('Sign in'),
-                        ),
-                        OutlinedButton(
-                          onPressed: () => _showComingSoon(context),
-                          child: const Text('Edit profile'),
-                        ),
-                        TextButton(
-                          onPressed: () => _showComingSoon(context),
-                          child: const Text('About'),
-                        ),
-                      ],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Average rating',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              if (averageRating != null)
+                                Icon(
+                                  Icons.star_rounded,
+                                  color: theme.colorScheme.tertiary,
+                                ),
+                              Text(
+                                averageRating?.toStringAsFixed(1) ?? '—',
+                                style: theme.textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () => _showComingSoon(context),
+                            child: const Text('Sign in'),
+                          ),
+                          OutlinedButton(
+                            onPressed: () => _showComingSoon(context),
+                            child: const Text('Edit profile'),
+                          ),
+                          TextButton(
+                            onPressed: () => _showComingSoon(context),
+                            child: const Text('About'),
+                          ),
+                          const Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(AppSpacing.lg),
+                              child: Text(
+                                'This product uses the TMDB API but is not endorsed or certified by TMDB.',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

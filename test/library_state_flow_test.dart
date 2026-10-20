@@ -16,7 +16,7 @@ void main() {
     final controller = await createLoadedLibraryController();
     addTearDown(controller.dispose);
 
-    await tester.pumpWidget(
+    await tester.pumpWidget(withFakeCatalog(
       LibraryScope(
         controller: controller,
         child: MaterialApp(
@@ -25,7 +25,7 @@ void main() {
           home: const MainShell(),
         ),
       ),
-    );
+    ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Library').last);
@@ -44,6 +44,7 @@ void main() {
     await tester.tap(find.text('Search').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Test Feature');
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(find.byType(MediaCard), findsOneWidget);
     await tester.tap(find.byType(MediaCard).first);

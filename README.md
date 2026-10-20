@@ -213,6 +213,7 @@ flutter analyze
 
 These commands help verify expected behavior and identify potential code issues.
 
+<<<<<<< HEAD
 ## 📌 Development Status
 
 | Component | Status |
@@ -270,3 +271,10 @@ This project is an opportunity to apply mobile development concepts, state manag
   <br />
   Your next favorite story starts here.
 </p>
+=======
+The catalog screens now load through the TMDB repository, while the library uses mock data through an in-memory repository; library changes are not persisted after the app process ends. Configure a local TMDB read token to browse live catalog data. Planned backend work is Firebase Authentication and Firestore persistence. No secrets are committed; supply API keys through local configuration.
+
+## Credits
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+>>>>>>> f6b04b0 (feat(catalog): wire home, search and details to TMDB)

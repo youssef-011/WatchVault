@@ -55,13 +55,18 @@ class LibraryScreen extends StatelessWidget {
             tabs: [for (final tab in _tabs) Tab(text: tab.label)],
           ),
         ),
-        body: LoadStateView(
-          controller: controller,
-          childBuilder: (context) => TabBarView(
-            children: [
-              for (final tab in _tabs)
-                _LibraryGrid(tab: tab, controller: controller),
-            ],
+        body: ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) => LoadStateView(
+            status: controller.loadState,
+            errorMessage: controller.errorMessage,
+            onRetry: () => unawaited(controller.load()),
+            childBuilder: (context) => TabBarView(
+              children: [
+                for (final tab in _tabs)
+                  _LibraryGrid(tab: tab, controller: controller),
+              ],
+            ),
           ),
         ),
         floatingActionButton: Builder(
@@ -136,7 +141,7 @@ class _LibraryGrid extends StatelessWidget {
             mediaCardGridPadding,
             AppSpacing.lg,
             mediaCardGridPadding,
-            AppSpacing.xl,
+            kFloatingActionButtonMargin + AppSpacing.fabHeight,
           ),
           gridDelegate: mediaCardGridDelegate(context, constraints.maxWidth),
           itemCount: entries.length,

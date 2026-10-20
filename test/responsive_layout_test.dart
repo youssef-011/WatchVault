@@ -20,7 +20,7 @@ void main() {
     for (final size in [const Size(320, 640), const Size(1000, 700)]) {
       tester.view.physicalSize = size;
       for (final screen in [const HomeScreen(), const LibraryScreen()]) {
-        await tester.pumpWidget(
+        await tester.pumpWidget(withFakeCatalog(
           LibraryScope(
             controller: controller,
             child: MaterialApp(
@@ -35,7 +35,7 @@ void main() {
               ),
             ),
           ),
-        );
+        ));
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);

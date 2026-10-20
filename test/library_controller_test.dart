@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:watchvault/core/models/load_status.dart';
 import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
 import 'package:watchvault/core/models/media_type.dart';
@@ -130,7 +131,7 @@ void main() {
 
     await controller.load();
 
-    expect(controller.loadState, LibraryLoadState.error);
+    expect(controller.loadState, LoadStatus.error);
     expect(controller.errorMessage, contains('Unable to load your library'));
   });
 
