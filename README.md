@@ -1,43 +1,117 @@
 # WatchVault 🎬
 
-**Your personal space to discover, track, and organize movies and TV shows.**
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-Mobile%20App-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter Mobile App" />
+  <img src="https://img.shields.io/badge/Dart-3-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart 3" />
+  <img src="https://img.shields.io/badge/Material-3-6750A4?style=for-the-badge&logo=materialdesign&logoColor=white" alt="Material 3" />
+</p>
 
-WatchVault is a Flutter-based movie and TV tracking application developed as part of the Mobile App Programming course. It provides a clean, responsive interface for exploring titles, searching the catalog, managing a personal watchlist, tracking viewing progress, and rating completed titles.
+<p align="center">
+  <strong>Discover what to watch. Keep track of what you love.</strong>
+</p>
 
-The project focuses on maintainable Flutter architecture, reusable UI components, and a clear separation between presentation, application logic, and data access.
+<p align="center">
+  A movie and TV show tracking application built with Flutter and Dart.
+  Explore titles, manage your personal watchlist, track viewing progress, and rate the shows and movies you have watched.
+</p>
 
 ---
 
+## 📖 Overview
+
+**WatchVault** is a movie and TV tracking application developed as part of the Mobile App Programming course.
+
+The application provides a centralized space for discovering titles and organizing a personal viewing library through a clean, responsive interface. The project emphasizes maintainable code, feature-based organization, reusable components, and separation of concerns.
+
+The current implementation includes a working UI and in-memory library management. Live catalog integration and persistent user data are part of the ongoing development roadmap.
+
 ## ✨ Features
 
-- **Discover Titles** — Explore curated Trending, Popular Series, and Top Rated sections.
-- **Search** — Find titles in the available catalog and navigate to their details.
-- **Title Details** — Inspect individual titles and manage library actions.
-- **Personal Library** — Add and remove titles and organize them by viewing status.
-- **Viewing Progress** — Track titles as *Want to Watch*, *Watching*, or *Watched*.
-- **Ratings** — Rate watched titles and view your library's average rating.
-- **Profile & Statistics** — View library counts and personal tracking statistics.
-- **Responsive UI** — Adapt the interface to different screen sizes.
-- **Navigation & Transitions** — Use named routes, poster transitions, and a structured tab-based navigation system.
-- **Loading & Error Handling** — Handle loading and error states with retry and refresh actions.
+- **Discover Movies & TV Shows** — Browse curated Trending, Popular Series, and Top Rated sections.
+- **Search Catalog** — Search available titles and access their details.
+- **Title Details** — Explore title information and manage library actions.
+- **Personal Watchlist** — Add titles to your personal library and remove them when needed.
+- **Viewing Progress** — Organize titles into three statuses:
+  - Want to Watch
+  - Watching
+  - Watched
+- **Personal Ratings** — Rate titles you have watched.
+- **Library Statistics** — View library counts and average ratings.
+- **Responsive Interface** — Adapt layouts to different screen sizes.
+- **Structured Navigation** — Use named routes, tab-based navigation, and poster transitions.
+- **Error Handling** — Provide loading and error states with retry and refresh actions.
+
+## 🖼️ Screenshots
+
+<p align="center">
+  <em>Screenshots coming soon.</em>
+</p>
+
+<!--
+Add your actual screenshots to a screenshots/ directory and replace
+the placeholders below with the correct image paths.
+
+<p align="center">
+  <img src="screenshots/home.png" width="250" alt="Home Screen" />
+  <img src="screenshots/search.png" width="250" alt="Search Screen" />
+  <img src="screenshots/library.png" width="250" alt="Library Screen" />
+</p>
+-->
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| Flutter | Cross-platform UI development |
-| Dart 3 | Application logic and models |
-| Material 3 | Modern interface and theming |
-| ChangeNotifier | Application state notifications |
-| InheritedNotifier | Sharing application state across the widget tree |
-| Repository Pattern | Separation of data access from application logic |
-| TMDB API integration layer | Foundation for movie and TV catalog data |
+### Core Technologies
 
-**State management:** Native Flutter mechanisms, without an additional state-management package.
+<p align="left">
+  <a href="https://flutter.dev/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=flutter" width="48" height="48" alt="Flutter" />
+  </a>
+  <a href="https://dart.dev/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=dart" width="48" height="48" alt="Dart" />
+  </a>
+  <a href="https://code.visualstudio.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=vscode" width="48" height="48" alt="Visual Studio Code" />
+  </a>
+  <a href="https://git-scm.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=git" width="48" height="48" alt="Git" />
+  </a>
+  <a href="https://github.com/" target="_blank">
+    <img src="https://skillicons.dev/icons?i=github" width="48" height="48" alt="GitHub" />
+  </a>
+</p>
 
-## 🏗️ Architecture
+### Framework & UI
 
-WatchVault follows a feature-oriented project structure, with dedicated modules for its main application features and shared components.
+- **Flutter** — Cross-platform application development.
+- **Dart 3** — Application logic and type-safe programming.
+- **Material 3** — Modern UI components and application theming.
+
+### State Management
+
+- **ChangeNotifier** — Notify listeners when application state changes.
+- **InheritedNotifier** — Expose shared state throughout the widget tree.
+- **Native Flutter State Management** — No additional state-management package required.
+
+### Architecture & Design
+
+- **Feature-Based Structure** — Organize the application around individual features.
+- **Repository Pattern** — Separate data access from application logic.
+- **Separation of Concerns** — Keep presentation, application logic, and data responsibilities distinct.
+- **Reusable Components** — Share common UI elements and styling.
+
+### API & Data
+
+<p align="left">
+  <a href="https://developer.themoviedb.org/" target="_blank">
+    <img src="https://img.shields.io/badge/TMDB-API-01B4E4?style=for-the-badge&logo=themoviedatabase&logoColor=white" alt="The Movie Database API" />
+  </a>
+</p>
+
+The project includes a TMDB client and catalog data layer. Full integration with the application screens is still in progress.
+
+> **Current data limitation:** The catalog and personal library currently use mock and in-memory data. Library changes are not persisted after the application process ends.
+
+## 🏗️ Project Structure
 
 ```text
 lib/
@@ -45,141 +119,154 @@ lib/
 │   ├── theme/
 │   ├── widgets/
 │   └── routing/
+│
 ├── features/
-│   ├── home/
-│   ├── search/
-│   ├── library/
+│   ├── home/           # Curated catalog sections
+│   ├── search/         # Catalog search
+│   ├── library/        # Personal library management
 │   │   ├── domain/
 │   │   ├── application/
 │   │   ├── data/
 │   │   └── presentation/
-│   ├── details/
-│   ├── profile/
-│   └── shell/
+│   ├── details/        # Title details and library actions
+│   ├── profile/        # User statistics and profile UI
+│   └── shell/          # Main tab navigation
+│
 ├── app.dart
 └── main.dart
 
 test/
 ```
 
-*The directory names above illustrate the main organization; the exact files and subdirectories depend on the current implementation.*
-
-### Design Principles
-
-- **Separation of Concerns** — Keep UI responsibilities distinct from application logic and data access.
-- **Reusable Components** — Share common UI elements and styling across features.
-- **Centralized State Access** — Use `ChangeNotifier` and `InheritedNotifier` to expose and update application state.
-- **Repository Abstraction** — Keep the library's data operations behind a repository interface.
-- **Testability** — Support focused tests for models, repositories, controllers, and widgets.
+*This tree illustrates the intended organization of the main modules; consult the actual repository for the exact file and directory names.*
 
 ## 🚀 Getting Started
+
+Follow these steps to run WatchVault locally.
 
 ### Prerequisites
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- Dart SDK compatible with the project's Flutter version
+- Dart SDK compatible with your installed Flutter version
 - [Visual Studio Code](https://code.visualstudio.com/) or Android Studio
-- A browser for web execution or an Android emulator/device
+- Chrome for web execution, or an Android emulator or connected device
 
-### Installation
-
-**1. Clone the repository**
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/youssef-011/WatchVault.git
 cd WatchVault
 ```
 
-Replace the repository URL if your GitHub repository uses a different name or location.
+Replace the repository URL if your GitHub repository uses a different name.
 
-**2. Install dependencies**
+### 2. Install Dependencies
 
 ```bash
 flutter pub get
 ```
 
-**3. Configure local TMDB settings**
+### 3. Configure Environment
 
-If your local setup requires TMDB configuration, create the configuration file expected by the project. For example:
+If your local setup requires TMDB configuration, create the configuration file expected by the project:
 
 ```text
 config/
 └── tmdb.json
 ```
 
-Supply the required values locally according to the project's configuration format. Do not commit API keys or other secrets.
+Provide the required configuration values locally, following the format expected by the application.
 
-**4. Run the application**
+**Security note:** Never commit API keys, credentials, or other secrets to version control.
 
-For web:
+### 4. Run the Application
+
+**Web — Chrome**
 
 ```bash
 flutter run -d chrome --dart-define-from-file=config/tmdb.json
 ```
 
-For a connected device or emulator:
+**Android — Emulator or Connected Device**
 
 ```bash
 flutter run --dart-define-from-file=config/tmdb.json
 ```
 
-If the current UI does not require TMDB configuration, run the app without the `--dart-define-from-file` argument.
+If the application can run without the TMDB configuration file, omit the `--dart-define-from-file` argument.
 
 ## 🧪 Testing & Code Quality
 
-Run the automated tests:
+WatchVault includes tests for application components such as models, repositories, controllers, and widgets.
+
+Run the test suite:
 
 ```bash
 flutter test
 ```
 
-Analyze the project for potential issues:
+Analyze the project:
 
 ```bash
 flutter analyze
 ```
 
-These checks help validate application behavior and identify common Dart and Flutter issues.
+These commands help verify expected behavior and identify potential code issues.
 
-## 📌 Current Status
+## 📌 Development Status
 
-WatchVault is under active development.
-
-| Component | Current status |
+| Component | Status |
 |---|---|
 | Main UI and navigation | Implemented |
-| Catalog browsing and search UI | Implemented with the current catalog data |
-| Personal library management | Implemented with in-memory storage |
+| Catalog browsing interface | Implemented with current catalog data |
+| Search interface | Implemented |
+| Library management | Implemented with in-memory storage |
 | Viewing statuses and ratings | Implemented in the current library flow |
-| TMDB data layer | Available; screen integration remains in progress |
-| Persistent storage | Not yet implemented |
+| TMDB client and catalog data layer | Available; screen integration in progress |
+| Persistent library storage | Planned |
 | Firebase Authentication | Planned |
-| Cloud persistence with Firestore | Planned |
-
-**Current limitation:** Library changes are held in memory and are lost when the application process ends. The TMDB data layer exists, but the screens have not yet been fully connected to live catalog data.
+| Cloud Firestore integration | Planned |
 
 ## 🗺️ Roadmap
 
-- [ ] Integrate the TMDB catalog with the browsing and search screens.
-- [ ] Complete loading, empty, and error-state handling for live data.
-- [ ] Implement persistent library storage.
-- [ ] Add Firebase Authentication.
+- [ ] Connect the Home screen to live TMDB catalog data.
+- [ ] Integrate live catalog search.
+- [ ] Complete loading, empty, and error states for API requests.
+- [ ] Persist library changes between application sessions.
+- [ ] Implement Firebase Authentication.
 - [ ] Integrate Cloud Firestore for user-specific library data.
-- [ ] Expand automated tests and edge-case coverage.
-- [ ] Refine the UI and accessibility across screen sizes.
+- [ ] Expand unit and widget test coverage.
+- [ ] Improve accessibility and responsive layouts.
+- [ ] Refine the overall user experience.
+
+## 🔐 Security
+
+- Keep API credentials and local configuration out of public repositories.
+- Use local configuration for development secrets.
+- Review API key restrictions and deployment requirements before publishing the application.
 
 ## 🎓 Project Context
 
-Developed for the **Mobile App Programming** course using Flutter and Dart.
+**Course:** Mobile App Programming  
+**Framework:** Flutter  
+**Language:** Dart
 
-The project serves as a practical exercise in mobile application development, state management, feature-based organization, repository abstraction, and automated testing.
+This project is an opportunity to apply mobile development concepts, state management, repository abstraction, modular architecture, and automated testing in a practical application.
 
 ## 👨‍💻 Author
 
 **Youssef Zenhom**
 
-- GitHub: [@youssef-011](https://github.com/youssef-011)
+<p align="left">
+  <a href="https://github.com/youssef-011">
+    <img src="https://img.shields.io/badge/GitHub-youssef--011-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile" />
+  </a>
+</p>
 
 ---
 
-*WatchVault — Discover what to watch. Keep track of what you love.*
+<p align="center">
+  <strong>WatchVault</strong>
+  <br />
+  Your next favorite story starts here.
+</p>
