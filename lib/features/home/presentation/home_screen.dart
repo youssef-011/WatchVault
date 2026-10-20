@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/router/app_routes.dart';
+import '../../../core/router/details_route_arguments.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../../core/widgets/section_header.dart';
@@ -31,23 +33,28 @@ class HomeScreen extends StatelessWidget {
         ),
         _MediaSection(
           title: 'Trending',
+          tagPrefix: 'trending',
           items: trending,
           cardWidth: cardWidth,
           listHeight: listHeight,
         ),
         _MediaSection(
           title: 'Popular Series',
+          tagPrefix: 'popular-series',
           items: popularSeries,
           cardWidth: cardWidth,
           listHeight: listHeight,
         ),
         _MediaSection(
           title: 'Top Rated',
+          tagPrefix: 'top-rated',
           items: topRated,
           cardWidth: cardWidth,
           listHeight: listHeight,
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: AppSpacing.xxl),
+        ),
       ],
     );
   }
@@ -56,12 +63,14 @@ class HomeScreen extends StatelessWidget {
 class _MediaSection extends StatelessWidget {
   const _MediaSection({
     required this.title,
+    required this.tagPrefix,
     required this.items,
     required this.cardWidth,
     required this.listHeight,
   });
 
   final String title;
+  final String tagPrefix;
   final List<MediaItem> items;
   final double cardWidth;
   final double listHeight;
@@ -77,18 +86,27 @@ class _MediaSection extends StatelessWidget {
             height: listHeight,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                0,
+              ),
               itemCount: items.length,
               itemBuilder: (context, index) => Padding(
                 padding: EdgeInsetsDirectional.only(
-                  end: index == items.length - 1 ? 0 : 12,
+                  end: index == items.length - 1 ? 0 : AppSpacing.md,
                 ),
                 child: MediaCard(
                   item: items[index],
+                  heroTag: '$tagPrefix-${items[index].id}',
                   width: cardWidth,
                   onTap: () => Navigator.of(context).pushNamed(
                     AppRoutes.details,
-                    arguments: items[index],
+                    arguments: DetailsRouteArguments(
+                      item: items[index],
+                      heroTag: '$tagPrefix-${items[index].id}',
+                    ),
                   ),
                 ),
               ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/router/app_routes.dart';
+import '../../../core/router/details_route_arguments.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/media_card.dart';
@@ -46,7 +48,7 @@ class _SearchScreenState extends State<SearchScreen> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: TextField(
                   controller: _controller,
                   onChanged: (_) => setState(() {}),
@@ -68,11 +70,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
               Expanded(
-                child: _buildResults(
-                  context,
-                  query,
-                  normalizedQuery,
-                  matches,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: _buildResults(
+                    context,
+                    query,
+                    normalizedQuery,
+                    matches,
+                  ),
                 ),
               ),
             ],
@@ -89,36 +94,49 @@ class _SearchScreenState extends State<SearchScreen> {
     List<MediaItem> matches,
   ) {
     if (normalizedQuery.isEmpty) {
-      return const EmptyState(
-        icon: Icons.search,
-        title: 'Find something to watch',
-        subtitle: 'Search by movie or series title.',
+      return const KeyedSubtree(
+        key: ValueKey('search-prompt'),
+        child: EmptyState(
+          icon: Icons.search,
+          title: 'Find something to watch',
+          subtitle: 'Search by movie or series title.',
+        ),
       );
     }
     if (matches.isEmpty) {
-      return EmptyState(
-        icon: Icons.search_off,
-        title: 'No results for "$query".',
-        subtitle: 'Try another movie or series title.',
+      return KeyedSubtree(
+        key: const ValueKey('search-no-results'),
+        child: EmptyState(
+          icon: Icons.search_off,
+          title: 'No results for "$query".',
+          subtitle: 'Try another movie or series title.',
+        ),
       );
     }
-    return LayoutBuilder(
-      builder: (context, constraints) => GridView.builder(
-        padding: const EdgeInsets.fromLTRB(
-          mediaCardGridPadding,
-          0,
-          mediaCardGridPadding,
-          24,
-        ),
-        gridDelegate: mediaCardGridDelegate(context, constraints.maxWidth),
-        itemCount: matches.length,
-        itemBuilder: (context, index) => LayoutBuilder(
-          builder: (context, constraints) => MediaCard(
-            item: matches[index],
-            width: constraints.maxWidth,
-            onTap: () => Navigator.of(context).pushNamed(
-              AppRoutes.details,
-              arguments: matches[index],
+    return KeyedSubtree(
+      key: const ValueKey('search-results'),
+      child: LayoutBuilder(
+        builder: (context, constraints) => GridView.builder(
+          padding: const EdgeInsets.fromLTRB(
+            mediaCardGridPadding,
+            0,
+            mediaCardGridPadding,
+            AppSpacing.xl,
+          ),
+          gridDelegate: mediaCardGridDelegate(context, constraints.maxWidth),
+          itemCount: matches.length,
+          itemBuilder: (context, index) => LayoutBuilder(
+            builder: (context, constraints) => MediaCard(
+              item: matches[index],
+              heroTag: 'search-${matches[index].id}',
+              width: constraints.maxWidth,
+              onTap: () => Navigator.of(context).pushNamed(
+                AppRoutes.details,
+                arguments: DetailsRouteArguments(
+                  item: matches[index],
+                  heroTag: 'search-${matches[index].id}',
+                ),
+              ),
             ),
           ),
         ),

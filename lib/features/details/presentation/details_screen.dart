@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/poster_image.dart';
 import '../../library/application/library_controller.dart';
@@ -16,9 +17,11 @@ class DetailsScreen extends StatelessWidget {
   const DetailsScreen({
     super.key,
     required this.item,
+    required this.heroTag,
   });
 
   final MediaItem item;
+  final String heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +57,14 @@ class DetailsScreen extends StatelessWidget {
             expandedHeight: expandedHeight,
             title: Text(item.title),
             flexibleSpace: FlexibleSpaceBar(
-              background: PosterImage(item: item),
+              background: Hero(
+                tag: heroTag,
+                child: PosterImage(item: item),
+              ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,71 +81,83 @@ class DetailsScreen extends StatelessWidget {
                         ),
                       ),
                       if (item.voteAverage != null) ...[
-                        const SizedBox(width: 8),
-                        Chip(
-                          avatar: Icon(
-                            Icons.star_rounded,
-                            color: colorScheme.tertiary,
+                        const SizedBox(width: AppSpacing.sm),
+                        Semantics(
+                          label:
+                              'Community rating ${item.voteAverage!.toStringAsFixed(1)}',
+                          excludeSemantics: true,
+                          child: Chip(
+                            avatar: Icon(
+                              Icons.star_rounded,
+                              color: colorScheme.tertiary,
+                            ),
+                            label: Text(item.voteAverage!.toStringAsFixed(1)),
                           ),
-                          label: Text(item.voteAverage!.toStringAsFixed(1)),
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
                     children: [
                       if (item.year != null) Chip(label: Text('${item.year}')),
                       Chip(label: Text(typeLabel)),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   Text(
                     'Overview',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     item.overview ?? 'No overview available.',
                     style: theme.textTheme.bodyLarge,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xl),
                   Text(
                     'Your activity',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: entry == null
                           ? Text(
                               'Not in your library yet',
                               style: theme.textTheme.bodyLarge,
                             )
                           : Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.xs,
                               children: [
                                 Chip(label: Text(entry.status.label)),
                                 if (entry.userRating != null)
-                                  Chip(
-                                    avatar: Icon(
-                                      Icons.star_rounded,
-                                      color: colorScheme.onTertiaryContainer,
-                                    ),
-                                    backgroundColor:
-                                        colorScheme.tertiaryContainer,
-                                    label: Text(
-                                      entry.userRating!.toStringAsFixed(1),
-                                      style: TextStyle(
-                                        color: colorScheme.onTertiaryContainer,
+                                  Semantics(
+                                    label:
+                                        'Your rating ${entry.userRating!.toStringAsFixed(1)}',
+                                    excludeSemantics: true,
+                                    child: Chip(
+                                      avatar: Icon(
+                                        Icons.star_rounded,
+                                        color: colorScheme
+                                            .onTertiaryContainer,
+                                      ),
+                                      backgroundColor:
+                                          colorScheme.tertiaryContainer,
+                                      label: Text(
+                                        entry.userRating!.toStringAsFixed(1),
+                                        style: TextStyle(
+                                          color: colorScheme
+                                              .onTertiaryContainer,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -147,75 +165,106 @@ class DetailsScreen extends StatelessWidget {
                             ),
                     ),
                   ),
-                  if (entry == null)
-                    ElevatedButton.icon(
-                      onPressed: () => _runMutation(
-                        context,
-                        controller,
-                        () => controller.addExistingMedia(item.id),
-                      ),
-                      icon: const Icon(Icons.bookmark_add_outlined),
-                      label: const Text('Add to Library'),
-                    )
-                  else ...[
-                    const SizedBox(height: 12),
-                    SegmentedButton<WatchStatus>(
-                      segments: const [
-                        ButtonSegment(
-                          value: WatchStatus.wantToWatch,
-                          label: Text('Want'),
-                        ),
-                        ButtonSegment(
-                          value: WatchStatus.watching,
-                          label: Text('Watching'),
-                        ),
-                        ButtonSegment(
-                          value: WatchStatus.watched,
-                          label: Text('Watched'),
-                        ),
-                      ],
-                      selected: {entry.status},
-                      onSelectionChanged: (selection) => _runMutation(
-                        context,
-                        controller,
-                        () => controller.setStatus(item.id, selection.first),
-                      ),
-                    ),
-                    if (entry.status == WatchStatus.watched) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Your rating: '
-                        '${entry.userRating?.toStringAsFixed(1) ?? '—'}',
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      Slider(
-                        min: 0,
-                        max: 5,
-                        divisions: 9,
-                        value: entry.userRating ?? 0,
-                        label: entry.userRating?.toStringAsFixed(1) ?? '—',
-                        onChanged: (rating) {
-                          final halfStepRating = (rating * 2).round() / 2;
-                          _runMutation(
-                            context,
-                            controller,
-                            () => controller.setRating(
-                              item.id,
-                              halfStepRating == 0 ? null : halfStepRating,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: entry == null
+                        ? ElevatedButton.icon(
+                            key: const ValueKey('add-to-library'),
+                            onPressed: () => _runMutation(
+                              context,
+                              controller,
+                              () => controller.addExistingMedia(item.id),
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                    TextButton(
-                      onPressed: () => _runMutation(
-                        context,
-                        controller,
-                        () => controller.removeEntry(item.id),
-                      ),
-                      child: const Text('Remove from library'),
-                    ),
-                  ],
+                            icon: const Icon(Icons.bookmark_add_outlined),
+                            label: const Text('Add to Library'),
+                          )
+                        : Column(
+                            key: const ValueKey('library-status-controls'),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: AppSpacing.md),
+                              SegmentedButton<WatchStatus>(
+                                segments: const [
+                                  ButtonSegment(
+                                    value: WatchStatus.wantToWatch,
+                                    label: Text('Want'),
+                                  ),
+                                  ButtonSegment(
+                                    value: WatchStatus.watching,
+                                    label: Text('Watching'),
+                                  ),
+                                  ButtonSegment(
+                                    value: WatchStatus.watched,
+                                    label: Text('Watched'),
+                                  ),
+                                ],
+                                selected: {entry.status},
+                                onSelectionChanged: (selection) =>
+                                    _runMutation(
+                                  context,
+                                  controller,
+                                  () => controller.setStatus(
+                                    item.id,
+                                    selection.first,
+                                  ),
+                                ),
+                              ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                child: entry.status == WatchStatus.watched
+                                    ? Column(
+                                        key: const ValueKey('rating-visible'),
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: AppSpacing.md,
+                                          ),
+                                          Text(
+                                            'Your rating: '
+                                            '${entry.userRating?.toStringAsFixed(1) ?? '—'}',
+                                            style: theme.textTheme.titleMedium,
+                                          ),
+                                          Slider(
+                                            min: 0,
+                                            max: 5,
+                                            divisions: 9,
+                                            value: entry.userRating ?? 0,
+                                            label: entry.userRating
+                                                    ?.toStringAsFixed(1) ??
+                                                '—',
+                                            onChanged: (rating) {
+                                              final halfStepRating =
+                                                  (rating * 2).round() / 2;
+                                              _runMutation(
+                                                context,
+                                                controller,
+                                                () => controller.setRating(
+                                                  item.id,
+                                                  halfStepRating == 0
+                                                      ? null
+                                                      : halfStepRating,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      )
+                                    : const SizedBox.shrink(
+                                        key: ValueKey('rating-hidden'),
+                                      ),
+                              ),
+                              TextButton(
+                                onPressed: () => _removeFromLibrary(
+                                  context,
+                                  controller,
+                                  item.id,
+                                ),
+                                child: const Text('Remove from library'),
+                              ),
+                            ],
+                          ),
+                  ),
                 ],
               ),
             ),
@@ -240,6 +289,14 @@ void _runMutation(
       SnackBar(content: Text(controller.errorMessage!)),
     );
   }());
+}
+
+void _removeFromLibrary(
+  BuildContext context,
+  LibraryController controller,
+  int mediaId,
+) {
+  _runMutation(context, controller, () => controller.removeEntry(mediaId));
 }
 
 

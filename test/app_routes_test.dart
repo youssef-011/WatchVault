@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/router/app_routes.dart';
+import 'package:watchvault/core/router/details_route_arguments.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
 import 'package:watchvault/features/home/data/mock_media.dart';
@@ -58,6 +59,34 @@ void main() {
     expect(find.byType(NotFoundScreen), findsOneWidget);
   });
 
+  testWidgets('details route rejects a blank hero tag', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => Navigator.of(context).pushNamed(
+                AppRoutes.details,
+                arguments: DetailsRouteArguments(
+                  item: mockMedia.first,
+                  heroTag: ' ',
+                ),
+              ),
+              child: const Text('Open invalid hero'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open invalid hero'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NotFoundScreen), findsOneWidget);
+  });
+
   testWidgets('details route passes its MediaItem argument', (tester) async {
     final item = mockMedia.first;
     final controller = await createLoadedLibraryController();
@@ -73,7 +102,10 @@ void main() {
               body: TextButton(
                 onPressed: () => Navigator.of(context).pushNamed(
                   AppRoutes.details,
-                  arguments: item,
+                  arguments: DetailsRouteArguments(
+                    item: item,
+                    heroTag: 'route-test-${item.id}',
+                  ),
                 ),
                 child: const Text('Open details'),
               ),

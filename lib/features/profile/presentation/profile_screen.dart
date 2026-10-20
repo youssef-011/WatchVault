@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/load_state_view.dart';
 import '../../library/application/library_scope.dart';
 import '../../library/domain/watch_status.dart';
@@ -26,110 +27,118 @@ class ProfileScreen extends StatelessWidget {
         childBuilder: (context) {
           final averageRating = controller.averageRating;
           final theme = Theme.of(context);
-          return SingleChildScrollView(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Center(
-                        child: CircleAvatar(
-                          radius: 48,
-                          child: Icon(Icons.person, size: 48),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Movie Lover',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Your personal movie shelf',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _StatItem(
-                                  count: controller
-                                      .countFor(WatchStatus.wantToWatch),
-                                  label: 'Want to Watch',
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 48,
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                              Expanded(
-                                child: _StatItem(
-                                  count: controller.countFor(WatchStatus.watching),
-                                  label: 'Watching',
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 48,
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                              Expanded(
-                                child: _StatItem(
-                                  count: controller.countFor(WatchStatus.watched),
-                                  label: 'Watched',
-                                ),
-                              ),
-                            ],
+          return RefreshIndicator(
+            onRefresh: controller.load,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Center(
+                          child: CircleAvatar(
+                            radius: 48,
+                            child: Icon(Icons.person, size: 48),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Average rating',
-                            style: theme.textTheme.titleMedium,
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          'Movie Lover',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(width: 8),
-                          if (averageRating != null)
-                            Icon(
-                              Icons.star_rounded,
-                              color: theme.colorScheme.tertiary,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          'Your personal movie shelf',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.lg,
                             ),
-                          Text(
-                            averageRating?.toStringAsFixed(1) ?? '—',
-                            style: theme.textTheme.titleMedium,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _StatItem(
+                                    count: controller
+                                        .countFor(WatchStatus.wantToWatch),
+                                    label: 'Want to Watch',
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 48,
+                                  color: theme.colorScheme.outlineVariant,
+                                ),
+                                Expanded(
+                                  child: _StatItem(
+                                    count: controller
+                                        .countFor(WatchStatus.watching),
+                                    label: 'Watching',
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 48,
+                                  color: theme.colorScheme.outlineVariant,
+                                ),
+                                Expanded(
+                                  child: _StatItem(
+                                    count: controller
+                                        .countFor(WatchStatus.watched),
+                                    label: 'Watched',
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () => _showComingSoon(context),
-                        child: const Text('Sign in'),
-                      ),
-                      OutlinedButton(
-                        onPressed: () => _showComingSoon(context),
-                        child: const Text('Edit profile'),
-                      ),
-                      TextButton(
-                        onPressed: () => _showComingSoon(context),
-                        child: const Text('About'),
-                      ),
-                    ],
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Average rating',
+                              style: theme.textTheme.titleMedium,
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            if (averageRating != null)
+                              Icon(
+                                Icons.star_rounded,
+                                color: theme.colorScheme.tertiary,
+                              ),
+                            Text(
+                              averageRating?.toStringAsFixed(1) ?? '—',
+                              style: theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => _showComingSoon(context),
+                          child: const Text('Sign in'),
+                        ),
+                        OutlinedButton(
+                          onPressed: () => _showComingSoon(context),
+                          child: const Text('Edit profile'),
+                        ),
+                        TextButton(
+                          onPressed: () => _showComingSoon(context),
+                          child: const Text('About'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -159,7 +168,7 @@ class _StatItem extends StatelessWidget {
     return Column(
       children: [
         Text('$count', style: theme.textTheme.titleLarge),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           label,
           maxLines: 2,

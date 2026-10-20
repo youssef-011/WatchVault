@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../features/details/presentation/details_screen.dart';
 import '../../features/library/domain/add_title_result.dart';
-import '../../features/library/domain/media_item.dart';
 import '../../features/library/presentation/add_title_screen.dart';
+import 'details_route_arguments.dart';
 import '../widgets/empty_state.dart';
 
 abstract final class AppRoutes {
@@ -14,10 +14,13 @@ abstract final class AppRoutes {
     switch (settings.name) {
       case details:
         final arguments = settings.arguments;
-        if (arguments is MediaItem) {
+        if (arguments is DetailsRouteArguments && arguments.isValid) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (_) => DetailsScreen(item: arguments),
+            builder: (_) => DetailsScreen(
+              item: arguments.item,
+              heroTag: arguments.heroTag,
+            ),
           );
         }
       case addTitle:

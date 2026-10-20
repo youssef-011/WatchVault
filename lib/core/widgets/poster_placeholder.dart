@@ -27,39 +27,44 @@ class PosterPlaceholder extends StatelessWidget {
     final second = (first + 1 + (item.id.abs() ~/ colors.length) % 2) %
         colors.length;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [colors[first], colors[second]],
+    return Semantics(
+      image: true,
+      label: 'Poster placeholder for ${item.title}',
+      excludeSemantics: true,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [colors[first], colors[second]],
+              ),
             ),
-          ),
-          child: Center(
-            child: Text(
-              titleInitial,
-              style: theme.textTheme.displayLarge?.copyWith(
-                color: colorScheme.onPrimary.withValues(alpha: 0.9),
-                fontWeight: FontWeight.w700,
+            child: Center(
+              child: Text(
+                titleInitial,
+                style: theme.textTheme.displayLarge?.copyWith(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
-        ),
-        Positioned(
-          left: 10,
-          bottom: 10,
-          child: Icon(
-            item.type == MediaType.movie
-                ? Icons.movie_outlined
-                : Icons.tv_outlined,
-            color: colorScheme.onPrimary.withValues(alpha: 0.9),
-            size: 20,
+          Positioned(
+            left: 10,
+            bottom: 10,
+            child: Icon(
+              item.type == MediaType.movie
+                  ? Icons.movie_outlined
+                  : Icons.tv_outlined,
+              color: colorScheme.onPrimary.withValues(alpha: 0.9),
+              size: 20,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

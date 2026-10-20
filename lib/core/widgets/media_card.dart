@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../../features/library/domain/media_item.dart';
 import '../../features/library/domain/media_type.dart';
+import '../theme/app_spacing.dart';
 import 'poster_image.dart';
 
 class MediaCard extends StatelessWidget {
   const MediaCard({
     super.key,
     required this.item,
+    required this.heroTag,
     this.onTap,
+    this.onLongPress,
     this.userRating,
     this.width = 140,
   });
 
   final MediaItem item;
+  final String heroTag;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final double? userRating;
   final double? width;
 
@@ -36,18 +41,19 @@ class MediaCard extends StatelessWidget {
             aspectRatio: 2 / 3,
             child: Material(
               color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: onTap,
+                onLongPress: onLongPress,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    PosterImage(item: item),
+                    Hero(tag: heroTag, child: PosterImage(item: item)),
                     if (item.voteAverage != null)
                       Positioned(
-                        top: 8,
-                        right: 8,
+                        top: AppSpacing.sm,
+                        right: AppSpacing.sm,
                         child: _ratingChip(
                           context,
                           item.voteAverage!,
@@ -55,18 +61,22 @@ class MediaCard extends StatelessWidget {
                               colorScheme.surface.withValues(alpha: 0.92),
                           foregroundColor: colorScheme.onSurface,
                           starColor: colorScheme.tertiary,
+                          semanticsLabel:
+                              'Community rating ${item.voteAverage!.toStringAsFixed(1)}',
                         ),
                       ),
                     if (userRating != null)
                       Positioned(
-                        bottom: 8,
-                        right: 8,
+                        bottom: AppSpacing.sm,
+                        right: AppSpacing.sm,
                         child: _ratingChip(
                           context,
                           userRating!,
                           backgroundColor: colorScheme.tertiaryContainer,
                           foregroundColor: colorScheme.onTertiaryContainer,
                           starColor: colorScheme.onTertiaryContainer,
+                          semanticsLabel:
+                              'Your rating ${userRating!.toStringAsFixed(1)}',
                         ),
                       ),
                   ],
@@ -74,7 +84,7 @@ class MediaCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             item.title,
             maxLines: 1,
@@ -101,27 +111,35 @@ class MediaCard extends StatelessWidget {
     required Color backgroundColor,
     required Color foregroundColor,
     required Color starColor,
+    required String semanticsLabel,
   }) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.star_rounded, size: 15, color: starColor),
-            const SizedBox(width: 3),
-            Text(
-              rating.toStringAsFixed(1),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: foregroundColor,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-          ],
+    return Semantics(
+      label: semanticsLabel,
+      excludeSemantics: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: 5,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.star_rounded, size: 15, color: starColor),
+              const SizedBox(width: 3),
+              Text(
+                rating.toStringAsFixed(1),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: foregroundColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_spacing.dart';
+
 const double mediaCardGridMaxCrossAxisExtent = 180;
-const double mediaCardGridSpacing = 12;
-const double mediaCardGridPadding = 16;
+const double mediaCardGridSpacing = AppSpacing.md;
+const double mediaCardGridPadding = AppSpacing.lg;
 
 double mediaCardHeight(BuildContext context, double width) {
   final theme = Theme.of(context);

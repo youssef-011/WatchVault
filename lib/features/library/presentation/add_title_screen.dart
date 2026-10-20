@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../core/theme/app_spacing.dart';
 import '../domain/add_title_result.dart';
 import '../domain/library_entry.dart';
 import '../domain/media_item.dart';
@@ -39,7 +40,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             TextFormField(
               controller: _titleController,
@@ -59,7 +60,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               controller: _yearController,
               keyboardType: TextInputType.number,
@@ -83,7 +84,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
             ),
             const SizedBox(height: 20),
             Text('Type', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             SegmentedButton<MediaType>(
               segments: const [
                 ButtonSegment(value: MediaType.movie, label: Text('Movie')),
@@ -94,7 +95,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
                 setState(() => _type = selection.first);
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             DropdownButtonFormField<WatchStatus>(
               initialValue: _status,
               decoration: const InputDecoration(
@@ -115,7 +116,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
               },
             ),
             if (_status == WatchStatus.watched) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Text('Your rating: ${_rating.toStringAsFixed(1)}'),
               Slider(
                 min: 0.5,
@@ -126,7 +127,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
                 onChanged: (rating) => setState(() => _rating = rating),
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             TextFormField(
               controller: _overviewController,
               maxLines: 4,

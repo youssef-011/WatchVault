@@ -58,4 +58,30 @@ void main() {
 
     expect(find.byType(DetailsScreen), findsOneWidget);
   });
+
+  testWidgets('home section heroes have no duplicate tags', (tester) async {
+    final controller = await createLoadedLibraryController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      LibraryScope(
+        controller: controller,
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          onGenerateRoute: AppRoutes.onGenerateRoute,
+          home: const HomeScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final mainScrollable = find.byType(Scrollable).first;
+    for (final section in ['Trending', 'Popular Series', 'Top Rated']) {
+      await tester.scrollUntilVisible(
+        find.text(section),
+        300,
+        scrollable: mainScrollable,
+      );
+    }
+    expect(tester.takeException(), isNull);
+  });
 }
