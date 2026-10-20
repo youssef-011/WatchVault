@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watchvault/core/models/media_item.dart';
 
 import '../../../core/router/app_routes.dart';
 import '../../../core/router/details_route_arguments.dart';
@@ -8,7 +9,6 @@ import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../library/application/library_scope.dart';
-import '../../library/domain/media_item.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -128,13 +128,13 @@ class _SearchScreenState extends State<SearchScreen> {
           itemBuilder: (context, index) => LayoutBuilder(
             builder: (context, constraints) => MediaCard(
               item: matches[index],
-              heroTag: 'search-${matches[index].id}',
+              heroTag: 'search-${matches[index].key.value}',
               width: constraints.maxWidth,
               onTap: () => Navigator.of(context).pushNamed(
                 AppRoutes.details,
                 arguments: DetailsRouteArguments(
                   item: matches[index],
-                  heroTag: 'search-${matches[index].id}',
+                  heroTag: 'search-${matches[index].key.value}',
                 ),
               ),
             ),

@@ -35,11 +35,12 @@ test/               widget and model/repository/controller tests
 
 ```sh
 flutter pub get
-flutter run
+flutter run -d chrome --dart-define-from-file=config/tmdb.json
+flutter run --dart-define-from-file=config/tmdb.json
 flutter test
 flutter analyze
 ```
 
 ## Status and roadmap
 
-The app currently uses mock catalog/library data and an in-memory repository; changes are not persisted after the app process ends. Planned work is Firebase Authentication and Firestore persistence, followed by TMDB catalog/search integration. No secrets are committed; provide any future API keys through local configuration.
+The screens currently use mock catalog/library data and the library uses an in-memory repository; changes are not persisted after the app process ends. A TMDB client and catalog repository are available as a data layer, with screen integration still ahead. Planned backend work is Firebase Authentication and Firestore persistence. No secrets are committed; supply API keys through local configuration.

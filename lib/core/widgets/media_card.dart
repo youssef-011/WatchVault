@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
-import '../../features/library/domain/media_item.dart';
-import '../../features/library/domain/media_type.dart';
 import '../theme/app_spacing.dart';
 import 'poster_image.dart';
 

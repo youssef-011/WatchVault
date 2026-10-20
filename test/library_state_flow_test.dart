@@ -57,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(watchingSegment);
     await tester.pumpAndSettle();
-    expect(controller.entryFor(addedItem.id)?.status, WatchStatus.watching);
+    expect(controller.entryFor(addedItem.key)?.status, WatchStatus.watching);
 
     await tester.pageBack();
     await tester.pumpAndSettle();

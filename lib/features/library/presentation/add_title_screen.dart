@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../domain/add_title_result.dart';
 import '../domain/library_entry.dart';
-import '../domain/media_item.dart';
-import '../domain/media_type.dart';
 import '../domain/watch_status.dart';
 import '../domain/watch_status_label.dart';
 
@@ -170,7 +170,7 @@ class _AddTitleScreenState extends State<AddTitleScreen> {
           : _overviewController.text.trim(),
     );
     final entry = LibraryEntry(
-      mediaId: item.id,
+      mediaKey: item.key,
       status: _status,
       addedAt: now,
       userRating: _status == WatchStatus.watched ? _rating : null,

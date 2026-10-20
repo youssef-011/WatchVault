@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_key.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/load_state_view.dart';
@@ -8,8 +11,6 @@ import '../../../core/widgets/poster_image.dart';
 import '../../library/application/library_controller.dart';
 import '../../library/application/library_scope.dart';
 import '../../library/domain/library_entry.dart';
-import '../../library/domain/media_item.dart';
-import '../../library/domain/media_type.dart';
 import '../../library/domain/watch_status.dart';
 import '../../library/domain/watch_status_label.dart';
 
@@ -29,7 +30,7 @@ class DetailsScreen extends StatelessWidget {
     return LoadStateView(
       controller: controller,
       childBuilder: (context) {
-        final entry = controller.entryFor(item.id);
+        final entry = controller.entryFor(item.key);
         return _buildDetails(context, controller, entry);
       },
     );
@@ -173,7 +174,7 @@ class DetailsScreen extends StatelessWidget {
                             onPressed: () => _runMutation(
                               context,
                               controller,
-                              () => controller.addExistingMedia(item.id),
+                              () => controller.addExistingMedia(item.key),
                             ),
                             icon: const Icon(Icons.bookmark_add_outlined),
                             label: const Text('Add to Library'),
@@ -204,7 +205,7 @@ class DetailsScreen extends StatelessWidget {
                                   context,
                                   controller,
                                   () => controller.setStatus(
-                                    item.id,
+                                    item.key,
                                     selection.first,
                                   ),
                                 ),
@@ -240,7 +241,7 @@ class DetailsScreen extends StatelessWidget {
                                                 context,
                                                 controller,
                                                 () => controller.setRating(
-                                                  item.id,
+                                                  item.key,
                                                   halfStepRating == 0
                                                       ? null
                                                       : halfStepRating,
@@ -258,7 +259,7 @@ class DetailsScreen extends StatelessWidget {
                                 onPressed: () => _removeFromLibrary(
                                   context,
                                   controller,
-                                  item.id,
+                                  item.key,
                                 ),
                                 child: const Text('Remove from library'),
                               ),
@@ -294,9 +295,9 @@ void _runMutation(
 void _removeFromLibrary(
   BuildContext context,
   LibraryController controller,
-  int mediaId,
+  MediaKey mediaKey,
 ) {
-  _runMutation(context, controller, () => controller.removeEntry(mediaId));
+  _runMutation(context, controller, () => controller.removeEntry(mediaKey));
 }
 
 

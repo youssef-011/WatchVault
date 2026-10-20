@@ -104,7 +104,7 @@ void main() {
                   AppRoutes.details,
                   arguments: DetailsRouteArguments(
                     item: item,
-                    heroTag: 'route-test-${item.id}',
+                    heroTag: 'route-test-${item.key.value}',
                   ),
                 ),
                 child: const Text('Open details'),

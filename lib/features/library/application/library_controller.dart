@@ -1,11 +1,12 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_key.dart';
 
 import '../domain/add_title_result.dart';
 import '../domain/library_entry.dart';
 import '../domain/library_repository.dart';
-import '../domain/media_item.dart';
 import '../domain/watch_status.dart';
 
 enum LibraryLoadState { loading, ready, error }
@@ -47,9 +48,9 @@ class LibraryController extends ChangeNotifier {
       _loadState = LibraryLoadState.ready;
       _errorMessage = null;
       notifyListeners();
-    } catch (error) {
+    } catch (_) {
       _loadState = LibraryLoadState.error;
-      _errorMessage = error.toString();
+      _errorMessage = 'Unable to load your library. Please try again.';
       notifyListeners();
     }
   }
@@ -59,18 +60,18 @@ class LibraryController extends ChangeNotifier {
         _entries.where((entry) => entry.status == status),
       );
 
-  MediaItem? mediaById(int id) {
+  MediaItem? mediaByKey(MediaKey key) {
     for (final item in _catalog) {
-      if (item.id == id) {
+      if (item.key == key) {
         return item;
       }
     }
     return null;
   }
 
-  LibraryEntry? entryFor(int mediaId) {
+  LibraryEntry? entryFor(MediaKey mediaKey) {
     for (final entry in _entries) {
-      if (entry.mediaId == mediaId) {
+      if (entry.mediaKey == mediaKey) {
         return entry;
       }
     }
@@ -101,7 +102,7 @@ class LibraryController extends ChangeNotifier {
     final id = _nextNegativeId--;
     final item = result.mediaItem.copyWith(id: id);
     final entry = LibraryEntry(
-      mediaId: id,
+      mediaKey: item.key,
       status: result.libraryEntry.status,
       userRating: result.libraryEntry.status == WatchStatus.watched
           ? result.libraryEntry.userRating
@@ -115,18 +116,18 @@ class LibraryController extends ChangeNotifier {
 
     try {
       await repository.saveEntry(entry, newMedia: item);
-    } catch (error) {
+    } catch (_) {
       _restore(oldCatalog, oldEntries);
-      _setMutationError(error);
+      _setMutationError();
     }
   }
 
   Future<void> addExistingMedia(
-    int mediaId, {
+    MediaKey mediaKey, {
     WatchStatus status = WatchStatus.wantToWatch,
   }) async {
-    final item = mediaById(mediaId);
-    if (item == null || entryFor(mediaId) != null) {
+    final item = mediaByKey(mediaKey);
+    if (item == null || entryFor(mediaKey) != null) {
       _errorMessage = null;
       notifyListeners();
       return;
@@ -134,7 +135,7 @@ class LibraryController extends ChangeNotifier {
 
     final oldEntries = List<LibraryEntry>.of(_entries);
     final entry = LibraryEntry(
-      mediaId: mediaId,
+      mediaKey: mediaKey,
       status: status,
       addedAt: DateTime.now(),
     );
@@ -144,16 +145,16 @@ class LibraryController extends ChangeNotifier {
 
     try {
       await repository.saveEntry(entry);
-    } catch (error) {
+    } catch (_) {
       _entries
         ..clear()
         ..addAll(oldEntries);
-      _setMutationError(error);
+      _setMutationError();
     }
   }
 
-  Future<void> setStatus(int mediaId, WatchStatus status) async {
-    final index = _entries.indexWhere((entry) => entry.mediaId == mediaId);
+  Future<void> setStatus(MediaKey mediaKey, WatchStatus status) async {
+    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
     if (index < 0) {
       _errorMessage = null;
       notifyListeners();
@@ -163,7 +164,7 @@ class LibraryController extends ChangeNotifier {
     final oldEntries = List<LibraryEntry>.of(_entries);
     final current = _entries[index];
     final updated = LibraryEntry(
-      mediaId: current.mediaId,
+      mediaKey: current.mediaKey,
       status: status,
       userRating: status == WatchStatus.watched ? current.userRating : null,
       addedAt: current.addedAt,
@@ -174,15 +175,15 @@ class LibraryController extends ChangeNotifier {
 
     try {
       await repository.saveEntry(updated);
-    } catch (error) {
+    } catch (_) {
       _entries
         ..clear()
         ..addAll(oldEntries);
-      _setMutationError(error);
+      _setMutationError();
     }
   }
 
-  Future<void> setRating(int mediaId, double? rating) async {
+  Future<void> setRating(MediaKey mediaKey, double? rating) async {
     if (rating != null &&
         (!rating.isFinite ||
             rating < 0.5 ||
@@ -195,7 +196,7 @@ class LibraryController extends ChangeNotifier {
       );
     }
 
-    final index = _entries.indexWhere((entry) => entry.mediaId == mediaId);
+    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
     if (index < 0 || _entries[index].status != WatchStatus.watched) {
       _errorMessage = null;
       notifyListeners();
@@ -205,7 +206,7 @@ class LibraryController extends ChangeNotifier {
     final oldEntries = List<LibraryEntry>.of(_entries);
     final current = _entries[index];
     final updated = LibraryEntry(
-      mediaId: current.mediaId,
+      mediaKey: current.mediaKey,
       status: current.status,
       userRating: rating,
       addedAt: current.addedAt,
@@ -216,16 +217,16 @@ class LibraryController extends ChangeNotifier {
 
     try {
       await repository.saveEntry(updated);
-    } catch (error) {
+    } catch (_) {
       _entries
         ..clear()
         ..addAll(oldEntries);
-      _setMutationError(error);
+      _setMutationError();
     }
   }
 
-  Future<void> removeEntry(int mediaId) async {
-    final index = _entries.indexWhere((entry) => entry.mediaId == mediaId);
+  Future<void> removeEntry(MediaKey mediaKey) async {
+    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
     if (index < 0) {
       _errorMessage = null;
       notifyListeners();
@@ -238,12 +239,12 @@ class LibraryController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await repository.removeEntry(mediaId);
-    } catch (error) {
+      await repository.removeEntry(mediaKey);
+    } catch (_) {
       _entries
         ..clear()
         ..addAll(oldEntries);
-      _setMutationError(error);
+      _setMutationError();
     }
   }
 
@@ -256,8 +257,8 @@ class LibraryController extends ChangeNotifier {
       ..addAll(entries);
   }
 
-  void _setMutationError(Object error) {
-    _errorMessage = error.toString();
+  void _setMutationError() {
+    _errorMessage = 'Unable to update your library. Please try again.';
     notifyListeners();
   }
 }

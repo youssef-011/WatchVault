@@ -1,4 +1,4 @@
-import '../../features/library/domain/media_item.dart';
+import 'package:watchvault/core/models/media_item.dart';
 
 class DetailsRouteArguments {
   const DetailsRouteArguments({required this.item, required this.heroTag});

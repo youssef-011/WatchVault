@@ -142,11 +142,11 @@ class _LibraryGrid extends StatelessWidget {
           itemCount: entries.length,
           itemBuilder: (context, index) {
             final entry = entries[index];
-            final item = controller.mediaById(entry.mediaId);
+            final item = controller.mediaByKey(entry.mediaKey);
             if (item == null) {
               return const SizedBox.shrink();
             }
-            final heroTag = 'library-${tab.status.name}-${item.id}';
+            final heroTag = 'library-${tab.status.name}-${item.key.value}';
             return LayoutBuilder(
               builder: (context, constraints) => MediaCard(
                 item: item,
@@ -215,7 +215,7 @@ Future<void> _showQuickActions(
                   _runEntryMutation(
                     context,
                     controller,
-                    () => controller.setStatus(entry.mediaId, status),
+                    () => controller.setStatus(entry.mediaKey, status),
                   ),
                 );
               },
@@ -230,7 +230,7 @@ Future<void> _showQuickActions(
                 _runEntryMutation(
                   context,
                   controller,
-                  () => controller.removeEntry(entry.mediaId),
+                  () => controller.removeEntry(entry.mediaKey),
                   successMessage: 'Removed from library',
                 ),
               );

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/features/catalog/data/tmdb_image_url.dart';
 
-import '../../features/library/domain/media_item.dart';
 import 'poster_placeholder.dart';
-
-const String tmdbPosterBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
 class PosterImage extends StatelessWidget {
   const PosterImage({super.key, required this.item});
@@ -13,13 +12,13 @@ class PosterImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final posterPath = item.posterPath;
-    if (posterPath == null) {
+    final imageUrl = posterUrl(posterPath, size: 'w500');
+    if (imageUrl == null) {
       return PosterPlaceholder(item: item);
     }
 
-    final separator = posterPath.startsWith('/') ? '' : '/';
     return Image.network(
-      '$tmdbPosterBaseUrl$separator$posterPath',
+      imageUrl,
       fit: BoxFit.cover,
       loadingBuilder: (context, child, loadingProgress) =>
           loadingProgress == null ? child : PosterPlaceholder(item: item),

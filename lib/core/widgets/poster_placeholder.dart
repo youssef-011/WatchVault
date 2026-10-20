@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../features/library/domain/media_item.dart';
-import '../../features/library/domain/media_type.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 class PosterPlaceholder extends StatelessWidget {
   const PosterPlaceholder({

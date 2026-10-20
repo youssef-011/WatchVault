@@ -1,5 +1,5 @@
-import '../../library/domain/media_item.dart';
-import '../../library/domain/media_type.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 const List<MediaItem> mockMedia = [
   MediaItem(

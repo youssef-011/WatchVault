@@ -20,7 +20,7 @@ void main() {
         controller: controller,
         child: MaterialApp(
           theme: AppTheme.dark,
-          home: DetailsScreen(item: item, heroTag: 'details-${item.id}'),
+          home: DetailsScreen(item: item, heroTag: 'details-${item.key.value}'),
         ),
       ),
     );

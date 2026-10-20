@@ -1,7 +1,9 @@
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_key.dart';
+
 import '../../home/data/mock_media.dart';
 import '../domain/library_entry.dart';
 import '../domain/library_repository.dart';
-import '../domain/media_item.dart';
 import 'mock_library.dart';
 
 class InMemoryLibraryRepository implements LibraryRepository {
@@ -24,7 +26,7 @@ class InMemoryLibraryRepository implements LibraryRepository {
   @override
   Future<void> saveEntry(LibraryEntry entry, {MediaItem? newMedia}) async {
     if (newMedia != null) {
-      final mediaIndex = _catalog.indexWhere((item) => item.id == newMedia.id);
+      final mediaIndex = _catalog.indexWhere((item) => item.key == newMedia.key);
       if (mediaIndex < 0) {
         _catalog.add(newMedia);
       } else {
@@ -33,7 +35,7 @@ class InMemoryLibraryRepository implements LibraryRepository {
     }
 
     final entryIndex =
-        _entries.indexWhere((existing) => existing.mediaId == entry.mediaId);
+        _entries.indexWhere((existing) => existing.mediaKey == entry.mediaKey);
     if (entryIndex < 0) {
       _entries.add(entry);
     } else {
@@ -42,7 +44,7 @@ class InMemoryLibraryRepository implements LibraryRepository {
   }
 
   @override
-  Future<void> removeEntry(int mediaId) async {
-    _entries.removeWhere((entry) => entry.mediaId == mediaId);
+  Future<void> removeEntry(MediaKey mediaKey) async {
+    _entries.removeWhere((entry) => entry.mediaKey == mediaKey);
   }
 }

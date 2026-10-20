@@ -1,7 +1,8 @@
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_key.dart';
 import 'package:watchvault/features/library/data/in_memory_library_repository.dart';
 import 'package:watchvault/features/library/domain/library_entry.dart';
 import 'package:watchvault/features/library/domain/library_repository.dart';
-import 'package:watchvault/features/library/domain/media_item.dart';
 
 class FailingLibraryRepository implements LibraryRepository {
   FailingLibraryRepository({
@@ -32,8 +33,8 @@ class FailingLibraryRepository implements LibraryRepository {
   }
 
   @override
-  Future<void> removeEntry(int mediaId) async {
+  Future<void> removeEntry(MediaKey mediaKey) async {
     if (failMutations) throw StateError('Repository remove failed');
-    await _delegate.removeEntry(mediaId);
+    await _delegate.removeEntry(mediaKey);
   }
 }

@@ -1,4 +1,5 @@
-import 'media_type.dart';
+import 'package:watchvault/core/models/media_key.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 class MediaItem {
   const MediaItem({
@@ -18,6 +19,8 @@ class MediaItem {
   final String? overview;
   final int? year;
   final double? voteAverage;
+
+  MediaKey get key => MediaKey(type: type, id: id);
 
   MediaItem copyWith({
     int? id,

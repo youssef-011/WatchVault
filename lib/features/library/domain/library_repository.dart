@@ -1,5 +1,7 @@
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_key.dart';
+
 import 'library_entry.dart';
-import 'media_item.dart';
 
 abstract interface class LibraryRepository {
   Future<List<MediaItem>> loadCatalog();
@@ -8,5 +10,5 @@ abstract interface class LibraryRepository {
 
   Future<void> saveEntry(LibraryEntry entry, {MediaItem? newMedia});
 
-  Future<void> removeEntry(int mediaId);
+  Future<void> removeEntry(MediaKey mediaKey);
 }

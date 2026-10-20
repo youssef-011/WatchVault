@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watchvault/core/models/media_item.dart';
 
 import '../../../core/router/app_routes.dart';
 import '../../../core/router/details_route_arguments.dart';
@@ -6,7 +7,6 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../../core/widgets/section_header.dart';
-import '../../library/domain/media_item.dart';
 import '../data/mock_media.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -99,13 +99,13 @@ class _MediaSection extends StatelessWidget {
                 ),
                 child: MediaCard(
                   item: items[index],
-                  heroTag: '$tagPrefix-${items[index].id}',
+                  heroTag: '$tagPrefix-${items[index].key.value}',
                   width: cardWidth,
                   onTap: () => Navigator.of(context).pushNamed(
                     AppRoutes.details,
                     arguments: DetailsRouteArguments(
                       item: items[index],
-                      heroTag: '$tagPrefix-${items[index].id}',
+                      heroTag: '$tagPrefix-${items[index].key.value}',
                     ),
                   ),
                 ),

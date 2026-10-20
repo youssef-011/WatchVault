@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../features/details/presentation/details_screen.dart';
 import '../../features/library/domain/add_title_result.dart';
 import '../../features/library/presentation/add_title_screen.dart';
-import 'details_route_arguments.dart';
 import '../widgets/empty_state.dart';
+import 'details_route_arguments.dart';
 
 abstract final class AppRoutes {
   static const details = '/details';

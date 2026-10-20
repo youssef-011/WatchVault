@@ -1,8 +1,10 @@
+import 'package:watchvault/core/models/media_key.dart';
+
 import 'watch_status.dart';
 
 class LibraryEntry {
   LibraryEntry({
-    required this.mediaId,
+    required this.mediaKey,
     required this.status,
     required this.addedAt,
     this.userRating,
@@ -14,19 +16,19 @@ class LibraryEntry {
           'userRating must be null or a half-step from 0.5 to 5.0.',
         );
 
-  final int mediaId;
+  final MediaKey mediaKey;
   final WatchStatus status;
   final double? userRating;
   final DateTime addedAt;
 
   LibraryEntry copyWith({
-    int? mediaId,
+    MediaKey? mediaKey,
     WatchStatus? status,
     double? userRating,
     DateTime? addedAt,
   }) {
     return LibraryEntry(
-      mediaId: mediaId ?? this.mediaId,
+      mediaKey: mediaKey ?? this.mediaKey,
       status: status ?? this.status,
       userRating: userRating ?? this.userRating,
       addedAt: addedAt ?? this.addedAt,
@@ -34,7 +36,7 @@ class LibraryEntry {
   }
 
   Map<String, Object?> toMap() => {
-        'mediaId': mediaId,
+        'mediaKey': mediaKey.value,
         'status': status.name,
         'userRating': userRating,
         'addedAt': addedAt.toIso8601String(),
@@ -42,7 +44,7 @@ class LibraryEntry {
 
   factory LibraryEntry.fromMap(Map<String, Object?> map) {
     return LibraryEntry(
-      mediaId: map['mediaId'] as int,
+      mediaKey: MediaKey.fromValue(map['mediaKey'] as String),
       status: WatchStatus.values.byName(map['status'] as String),
       userRating: (map['userRating'] as num?)?.toDouble(),
       addedAt: DateTime.parse(map['addedAt'] as String),
@@ -53,12 +55,11 @@ class LibraryEntry {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is LibraryEntry &&
-          other.mediaId == mediaId &&
+          other.mediaKey == mediaKey &&
           other.status == status &&
           other.userRating == userRating &&
           other.addedAt == addedAt;
 
   @override
-  int get hashCode => Object.hash(mediaId, status, userRating, addedAt);
+  int get hashCode => Object.hash(mediaKey, status, userRating, addedAt);
 }
-

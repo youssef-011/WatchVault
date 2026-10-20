@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:watchvault/core/models/media_item.dart';
+import 'package:watchvault/core/models/media_type.dart';
 import 'package:watchvault/features/home/data/mock_media.dart';
 import 'package:watchvault/features/library/data/in_memory_library_repository.dart';
 import 'package:watchvault/features/library/data/mock_library.dart';
 import 'package:watchvault/features/library/domain/library_entry.dart';
-import 'package:watchvault/features/library/domain/media_item.dart';
-import 'package:watchvault/features/library/domain/media_type.dart';
 import 'package:watchvault/features/library/domain/watch_status.dart';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
     final repository = InMemoryLibraryRepository();
     final original = mockLibrary.first;
     final updated = LibraryEntry(
-      mediaId: original.mediaId,
+      mediaKey: original.mediaKey,
       status: WatchStatus.watching,
       addedAt: original.addedAt,
     );
@@ -38,7 +38,7 @@ void main() {
       type: MediaType.movie,
     );
     final manualEntry = LibraryEntry(
-      mediaId: -1,
+      mediaKey: manualMedia.key,
       status: WatchStatus.wantToWatch,
       addedAt: DateTime.utc(2026),
     );
@@ -48,11 +48,11 @@ void main() {
 
     final entries = await repository.loadEntries();
     expect(
-      entries.where((entry) => entry.mediaId == original.mediaId).toList(),
+      entries.where((entry) => entry.mediaKey == original.mediaKey).toList(),
       [updated],
     );
     expect(
-      entries.where((entry) => entry.mediaId == -1).toList(),
+      entries.where((entry) => entry.mediaKey == manualEntry.mediaKey).toList(),
       [manualEntry],
     );
     expect(await repository.loadCatalog(), contains(manualMedia));
@@ -60,14 +60,44 @@ void main() {
 
   test('removeEntry removes the matching entry', () async {
     final repository = InMemoryLibraryRepository();
-    final id = mockLibrary.first.mediaId;
+    final key = mockLibrary.first.mediaKey;
 
-    await repository.removeEntry(id);
+    await repository.removeEntry(key);
 
     expect(
-      (await repository.loadEntries()).any((entry) => entry.mediaId == id),
+      (await repository.loadEntries()).any((entry) => entry.mediaKey == key),
       isFalse,
     );
+  });
+
+  test('upserts distinguish movie and series keys with the same id', () async {
+    final repository = InMemoryLibraryRepository(catalog: [], entries: []);
+    const movie = MediaItem(
+      id: 42,
+      title: 'Movie',
+      type: MediaType.movie,
+    );
+    const series = MediaItem(
+      id: 42,
+      title: 'Series',
+      type: MediaType.series,
+    );
+    final movieEntry = LibraryEntry(
+      mediaKey: movie.key,
+      status: WatchStatus.watching,
+      addedAt: DateTime.utc(2026, 1, 1),
+    );
+    final seriesEntry = LibraryEntry(
+      mediaKey: series.key,
+      status: WatchStatus.watched,
+      addedAt: DateTime.utc(2026, 1, 2),
+    );
+
+    await repository.saveEntry(movieEntry, newMedia: movie);
+    await repository.saveEntry(seriesEntry, newMedia: series);
+
+    expect(await repository.loadCatalog(), [movie, series]);
+    expect(await repository.loadEntries(), [movieEntry, seriesEntry]);
   });
 
   test('manual title remains available after reload', () async {
@@ -78,7 +108,7 @@ void main() {
       type: MediaType.series,
     );
     final entry = LibraryEntry(
-      mediaId: media.id,
+      mediaKey: media.key,
       status: WatchStatus.watched,
       userRating: 4.5,
       addedAt: DateTime.utc(2026, 1, 1),
