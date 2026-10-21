@@ -11,35 +11,28 @@
 </p>
 
 <p align="center">
-  A movie and TV show tracking application built with Flutter and Dart.
-  Explore titles, manage your personal watchlist, track viewing progress, and rate the shows and movies you have watched.
+  A movie and TV show tracking application built with Flutter and Dart for the Mobile App Programming course. Discover titles from TMDB, inspect their details, and organize a personal watchlist with viewing statuses and ratings.
 </p>
 
 ---
 
 ## 📖 Overview
 
-**WatchVault** is a movie and TV tracking application developed as part of the Mobile App Programming course.
-
-The application provides a centralized space for discovering titles and organizing a personal viewing library through a clean, responsive interface. The project emphasizes maintainable code, feature-based organization, reusable components, and separation of concerns.
-
-The current implementation includes a working UI and in-memory library management. Live catalog integration and persistent user data are part of the ongoing development roadmap.
+**WatchVault** is a movie and TV tracking application developed as part of the Mobile App Programming course. It uses a feature-first structure, reusable Material 3 widgets, and repository boundaries to keep the catalog and personal library separate.
 
 ## ✨ Features
 
-- **Discover Movies & TV Shows** — Browse curated Trending, Popular Series, and Top Rated sections.
-- **Search Catalog** — Search available titles and access their details.
-- **Title Details** — Explore title information and manage library actions.
-- **Personal Watchlist** — Add titles to your personal library and remove them when needed.
-- **Viewing Progress** — Organize titles into three statuses:
-  - Want to Watch
-  - Watching
-  - Watched
-- **Personal Ratings** — Rate titles you have watched.
-- **Library Statistics** — View library counts and average ratings.
-- **Responsive Interface** — Adapt layouts to different screen sizes.
-- **Structured Navigation** — Use named routes, tab-based navigation, and poster transitions.
-- **Error Handling** — Provide loading and error states with retry and refresh actions.
+- **Discover Movies & TV Shows** — Home loads five live TMDB sections: Trending, Popular Movies, Popular Series, Top Rated Movies, and Top Rated Series.
+- **Search Catalog** — Search TMDB titles with a debounced query and open matching details.
+- **Title Details** — Load TMDB metadata, including genres, movie runtime, and series seasons.
+- **Personal Watchlist** — The library starts empty. Add any catalog title or enter a manual title.
+- **Viewing Progress** — Organize titles as Want to Watch, Watching, or Watched.
+- **Personal Ratings** — Give watched titles ratings in half-star steps.
+- **Library Statistics** — View status counts and the average of rated watched titles.
+- **Responsive Interface** — Adapt catalog cards and library grids to screen size and text scale.
+- **Navigation and feedback** — Use named routes, poster Hero transitions, retry states, and library quick actions.
+
+Library contents are held in memory and are not persisted after the app process ends. Firebase Authentication and Firestore are planned.
 
 ## 🖼️ Screenshots
 
@@ -48,9 +41,7 @@ The current implementation includes a working UI and in-memory library managemen
 </p>
 
 <!--
-Add your actual screenshots to a screenshots/ directory and replace
-the placeholders below with the correct image paths.
-
+Add screenshots to a screenshots/ directory and update these paths when available.
 <p align="center">
   <img src="screenshots/home.png" width="250" alt="Home Screen" />
   <img src="screenshots/search.png" width="250" alt="Search Screen" />
@@ -83,21 +74,20 @@ the placeholders below with the correct image paths.
 ### Framework & UI
 
 - **Flutter** — Cross-platform application development.
-- **Dart 3** — Application logic and type-safe programming.
-- **Material 3** — Modern UI components and application theming.
+- **Dart 3** — Application logic and null-safe types.
+- **Material 3** — UI components with dark and light themes.
 
 ### State Management
 
-- **ChangeNotifier** — Notify listeners when application state changes.
-- **InheritedNotifier** — Expose shared state throughout the widget tree.
-- **Native Flutter State Management** — No additional state-management package required.
+- **ChangeNotifier** — Notify screens when controller state changes.
+- **InheritedNotifier** — Expose library state through `LibraryScope`.
+- **No state-management package** — The app uses Flutter's built-in state tools.
 
 ### Architecture & Design
 
-- **Feature-Based Structure** — Organize the application around individual features.
-- **Repository Pattern** — Separate data access from application logic.
-- **Separation of Concerns** — Keep presentation, application logic, and data responsibilities distinct.
-- **Reusable Components** — Share common UI elements and styling.
+- **Feature-first structure** — Group code by shared core and app feature.
+- **Repository layer** — Separate catalog and library data access from UI.
+- **Reusable components** — Share cards, posters, load states, and spacing tokens.
 
 ### API & Data
 
@@ -107,79 +97,67 @@ the placeholders below with the correct image paths.
   </a>
 </p>
 
-The project includes a TMDB client and catalog data layer. Full integration with the application screens is still in progress.
-
-> **Current data limitation:** The catalog and personal library currently use mock and in-memory data. Library changes are not persisted after the application process ends.
+The catalog uses TMDB through the `http` package. The personal library uses an in-memory repository and is not saved across app restarts.
 
 ## 🏗️ Project Structure
 
 ```text
 lib/
 ├── core/
+│   ├── config/
+│   ├── models/
+│   ├── router/
 │   ├── theme/
-│   ├── widgets/
-│   └── routing/
-│
+│   └── widgets/
 ├── features/
-│   ├── home/           # Curated catalog sections
-│   ├── search/         # Catalog search
-│   ├── library/        # Personal library management
-│   │   ├── domain/
+│   ├── catalog/
 │   │   ├── application/
 │   │   ├── data/
+│   │   ├── domain/
 │   │   └── presentation/
-│   ├── details/        # Title details and library actions
-│   ├── profile/        # User statistics and profile UI
-│   └── shell/          # Main tab navigation
-│
+│   ├── home/
+│   │   ├── application/
+│   │   └── presentation/
+│   ├── search/
+│   │   ├── application/
+│   │   └── presentation/
+│   ├── library/
+│   │   ├── application/
+│   │   ├── data/
+│   │   ├── domain/
+│   │   └── presentation/
+│   ├── details/
+│   │   ├── application/
+│   │   └── presentation/
+│   ├── profile/
+│   │   └── presentation/
+│   └── shell/
+│       └── presentation/
 ├── app.dart
 └── main.dart
 
 test/
+└── helpers/
 ```
 
-*This tree illustrates the intended organization of the main modules; consult the actual repository for the exact file and directory names.*
-
 ## 🚀 Getting Started
-
-Follow these steps to run WatchVault locally.
 
 ### Prerequisites
 
 - [Flutter SDK](https://docs.flutter.dev/get-started/install)
-- Dart SDK compatible with your installed Flutter version
-- [Visual Studio Code](https://code.visualstudio.com/) or Android Studio
-- Chrome for web execution, or an Android emulator or connected device
+- Chrome for web, or an Android emulator/device
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/youssef-011/WatchVault.git
-cd WatchVault
-```
-
-Replace the repository URL if your GitHub repository uses a different name.
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 flutter pub get
 ```
 
-### 3. Configure Environment
+### 2. Configure TMDB
 
-If your local setup requires TMDB configuration, create the configuration file expected by the project:
+Live catalog data requires `config/tmdb.json` with a `TMDB_READ_TOKEN` value. This local file is gitignored and must not be committed. Use `config/tmdb.example.json` as the template, then provide your own TMDB read token in the local config file.
 
-```text
-config/
-└── tmdb.json
-```
-
-Provide the required configuration values locally, following the format expected by the application.
-
-**Security note:** Never commit API keys, credentials, or other secrets to version control.
-
-### 4. Run the Application
+### 3. Run the Application
 
 **Web — Chrome**
 
@@ -193,11 +171,9 @@ flutter run -d chrome --dart-define-from-file=config/tmdb.json
 flutter run --dart-define-from-file=config/tmdb.json
 ```
 
-If the application can run without the TMDB configuration file, omit the `--dart-define-from-file` argument.
+Without a valid token, catalog requests return an authorization error and the UI shows its error state.
 
 ## 🧪 Testing & Code Quality
-
-WatchVault includes tests for application components such as models, repositories, controllers, and widgets.
 
 Run the test suite:
 
@@ -211,40 +187,29 @@ Analyze the project:
 flutter analyze
 ```
 
-These commands help verify expected behavior and identify potential code issues.
-
-<<<<<<< HEAD
 ## 📌 Development Status
 
 | Component | Status |
 |---|---|
-| Main UI and navigation | Implemented |
-| Catalog browsing interface | Implemented with current catalog data |
-| Search interface | Implemented |
-| Library management | Implemented with in-memory storage |
-| Viewing statuses and ratings | Implemented in the current library flow |
-| TMDB client and catalog data layer | Available; screen integration in progress |
-| Persistent library storage | Planned |
+| Home TMDB sections | Implemented: five live catalog sections |
+| Search and title details | Implemented with TMDB catalog data |
+| Library statuses, ratings, and snapshots | Implemented with in-memory storage |
+| Responsive UI and loading/error states | Implemented |
 | Firebase Authentication | Planned |
-| Cloud Firestore integration | Planned |
+| Firestore persistence | Planned |
 
 ## 🗺️ Roadmap
 
-- [ ] Connect the Home screen to live TMDB catalog data.
-- [ ] Integrate live catalog search.
-- [ ] Complete loading, empty, and error states for API requests.
-- [ ] Persist library changes between application sessions.
-- [ ] Implement Firebase Authentication.
-- [ ] Integrate Cloud Firestore for user-specific library data.
-- [ ] Expand unit and widget test coverage.
-- [ ] Improve accessibility and responsive layouts.
-- [ ] Refine the overall user experience.
+- [ ] Add Firebase Authentication and user sessions.
+- [ ] Persist each user's library in Firestore.
+- [ ] Continue improving accessibility and responsive layouts.
+- [ ] Add screenshots and refine the overall experience.
 
 ## 🔐 Security
 
-- Keep API credentials and local configuration out of public repositories.
+- Keep `config/tmdb.json` and all credentials out of version control.
 - Use local configuration for development secrets.
-- Review API key restrictions and deployment requirements before publishing the application.
+- Review token restrictions and deployment requirements before release.
 
 ## 🎓 Project Context
 
@@ -252,7 +217,9 @@ These commands help verify expected behavior and identify potential code issues.
 **Framework:** Flutter  
 **Language:** Dart
 
-This project is an opportunity to apply mobile development concepts, state management, repository abstraction, modular architecture, and automated testing in a practical application.
+## Credits
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
 
 ## 👨‍💻 Author
 
@@ -271,10 +238,3 @@ This project is an opportunity to apply mobile development concepts, state manag
   <br />
   Your next favorite story starts here.
 </p>
-=======
-The catalog screens now load through the TMDB repository, while the library uses mock data through an in-memory repository; library changes are not persisted after the app process ends. Configure a local TMDB read token to browse live catalog data. Planned backend work is Firebase Authentication and Firestore persistence. No secrets are committed; supply API keys through local configuration.
-
-## Credits
-
-This product uses the TMDB API but is not endorsed or certified by TMDB.
->>>>>>> f6b04b0 (feat(catalog): wire home, search and details to TMDB)

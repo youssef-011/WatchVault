@@ -54,3 +54,4 @@ key.properties
 google-services.json
 GoogleService-Info.plist
 config/tmdb.json
+!config/tmdb.example.json
