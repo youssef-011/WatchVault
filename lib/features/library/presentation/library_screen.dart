@@ -12,7 +12,7 @@ import '../../../core/widgets/media_card_sizing.dart';
 import '../application/library_controller.dart';
 import '../application/library_scope.dart';
 import '../domain/add_title_result.dart';
-import '../domain/library_entry.dart';
+import '../domain/library_item.dart';
 import '../domain/watch_status.dart';
 import '../domain/watch_status_label.dart';
 
@@ -105,9 +105,9 @@ class _LibraryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = controller.entriesByStatus(tab.status);
+    final items = controller.itemsByStatus(tab.status);
 
-    if (entries.isEmpty) {
+    if (items.isEmpty) {
       return RefreshIndicator(
         onRefresh: controller.load,
         child: LayoutBuilder(
@@ -144,32 +144,38 @@ class _LibraryGrid extends StatelessWidget {
             kFloatingActionButtonMargin + AppSpacing.fabHeight,
           ),
           gridDelegate: mediaCardGridDelegate(context, constraints.maxWidth),
-          itemCount: entries.length,
+          itemCount: items.length,
           itemBuilder: (context, index) {
-            final entry = entries[index];
-            final item = controller.mediaByKey(entry.mediaKey);
-            if (item == null) {
-              return const SizedBox.shrink();
-            }
+            final libraryItem = items[index];
+            final item = libraryItem.media;
             final heroTag = 'library-${tab.status.name}-${item.key.value}';
             return LayoutBuilder(
-              builder: (context, constraints) => MediaCard(
-                item: item,
-                heroTag: heroTag,
-                width: constraints.maxWidth,
-                onTap: () => Navigator.of(context).pushNamed(
-                  AppRoutes.details,
-                  arguments: DetailsRouteArguments(
-                    item: item,
+              builder: (context, constraints) => ListenableBuilder(
+                listenable: controller,
+                builder: (context, _) {
+                  final currentItem = controller.itemFor(libraryItem.key) ??
+                      libraryItem;
+                  return MediaCard(
+                    item: currentItem.media,
                     heroTag: heroTag,
-                  ),
-                ),
-                onLongPress: () => unawaited(
-                  _showQuickActions(context, controller, entry),
-                ),
-                userRating: tab.status == WatchStatus.watched
-                    ? entry.userRating
-                    : null,
+                    width: constraints.maxWidth,
+                    onTap: () => Navigator.of(context).pushNamed(
+                      AppRoutes.details,
+                      arguments: DetailsRouteArguments(
+                        item: currentItem.media,
+                        heroTag: heroTag,
+                      ),
+                    ),
+                    onLongPress: () => unawaited(
+                      _showQuickActions(context, controller, currentItem),
+                    ),
+                    userRating: tab.status == WatchStatus.watched
+                        ? currentItem.entry.userRating
+                        : null,
+                    libraryStatusLabel: currentItem.entry.status.label,
+                    libraryStatusIcon: _statusIcon(currentItem.entry.status),
+                  );
+                },
               ),
             );
           },
@@ -178,6 +184,12 @@ class _LibraryGrid extends StatelessWidget {
     );
   }
 }
+
+IconData _statusIcon(WatchStatus status) => switch (status) {
+      WatchStatus.wantToWatch => Icons.bookmark_border,
+      WatchStatus.watching => Icons.play_circle_outline,
+      WatchStatus.watched => Icons.check_circle_outline,
+    };
 
 Future<void> _openAddTitle(
   BuildContext context,
@@ -200,7 +212,7 @@ Future<void> _openAddTitle(
 Future<void> _showQuickActions(
   BuildContext context,
   LibraryController controller,
-  LibraryEntry entry,
+  LibraryItem item,
 ) async {
   await showModalBottomSheet<void>(
     context: context,
@@ -211,7 +223,7 @@ Future<void> _showQuickActions(
           for (final status in WatchStatus.values)
             ListTile(
               title: Text(status.label),
-              trailing: status == entry.status
+              trailing: status == item.entry.status
                   ? const Icon(Icons.check)
                   : null,
               onTap: () {
@@ -220,7 +232,7 @@ Future<void> _showQuickActions(
                   _runEntryMutation(
                     context,
                     controller,
-                    () => controller.setStatus(entry.mediaKey, status),
+                    () => controller.setStatus(item.key, status),
                   ),
                 );
               },
@@ -235,7 +247,7 @@ Future<void> _showQuickActions(
                 _runEntryMutation(
                   context,
                   controller,
-                  () => controller.removeEntry(entry.mediaKey),
+                  () => controller.remove(item.key),
                   successMessage: 'Removed from library',
                 ),
               );

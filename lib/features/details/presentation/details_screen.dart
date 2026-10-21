@@ -67,7 +67,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
     final item = widget.item;
     final details = _detailsController.details;
     final entry = library.entryFor(item.key);
-    final isInLocalCatalog = library.mediaByKey(item.key) != null;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final expandedHeight =
@@ -152,6 +151,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         Chip(label: Text(genre)),
                     ],
                   ),
+                  _libraryControls(context, library, entry),
                   if (_detailsController.status == LoadStatus.error) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Row(
@@ -183,46 +183,43 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   Text(item.overview ?? 'No overview available.',
                       style: theme.textTheme.bodyLarge),
-                  if (isInLocalCatalog) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    Text(
-                      'Your activity',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  const SizedBox(height: AppSpacing.xl),
+                  Text(
+                    'Your activity',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: entry == null
-                            ? Text('Not in your library yet',
-                                style: theme.textTheme.bodyLarge)
-                            : Wrap(
-                                spacing: AppSpacing.sm,
-                                children: [
-                                  Chip(label: Text(entry.status.label)),
-                                  if (entry.userRating != null)
-                                    Chip(
-                                      avatar: Icon(Icons.star_rounded,
-                                          color: colorScheme
-                                              .onTertiaryContainer),
-                                      backgroundColor:
-                                          colorScheme.tertiaryContainer,
-                                      label: Text(
-                                        entry.userRating!.toStringAsFixed(1),
-                                        style: TextStyle(
-                                          color:
-                                              colorScheme.onTertiaryContainer,
-                                        ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: entry == null
+                          ? Text('Not in your library yet',
+                              style: theme.textTheme.bodyLarge)
+                          : Wrap(
+                              spacing: AppSpacing.sm,
+                              children: [
+                                Chip(label: Text(entry.status.label)),
+                                if (entry.userRating != null)
+                                  Chip(
+                                    avatar: Icon(
+                                      Icons.star_rounded,
+                                      color: colorScheme.onTertiaryContainer,
+                                    ),
+                                    backgroundColor:
+                                        colorScheme.tertiaryContainer,
+                                    label: Text(
+                                      entry.userRating!.toStringAsFixed(1),
+                                      style: TextStyle(
+                                        color: colorScheme.onTertiaryContainer,
                                       ),
                                     ),
-                                ],
-                              ),
-                      ),
+                                  ),
+                              ],
+                            ),
                     ),
-                    _libraryControls(context, library, entry),
-                  ],
+                  ),
                 ],
               ),
             ),
@@ -245,10 +242,11 @@ class _DetailsScreenState extends State<DetailsScreen> {
                 onPressed: () => _runMutation(
                   context,
                   controller,
-                  () => controller.addExistingMedia(widget.item.key),
+                  () => controller.add(widget.item),
+                  successMessage: 'Added',
                 ),
                 icon: const Icon(Icons.bookmark_add_outlined),
-                label: const Text('Add to Library'),
+                label: const Text('Add to library'),
               )
             : Column(
                 key: const ValueKey('library-status-controls'),
@@ -312,7 +310,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     onPressed: () => _runMutation(
                       context,
                       controller,
-                      () => controller.removeEntry(widget.item.key),
+                      () => controller.remove(widget.item.key),
+                      successMessage: 'Removed from library',
                     ),
                     child: const Text('Remove from library'),
                   ),
@@ -332,13 +331,16 @@ String _formatRuntime(int minutes) {
 void _runMutation(
   BuildContext context,
   LibraryController controller,
-  Future<void> Function() mutation,
-) {
+  Future<void> Function() mutation, {
+  String? successMessage,
+}) {
   unawaited(() async {
     await mutation();
-    if (!context.mounted || controller.errorMessage == null) return;
+    if (!context.mounted) return;
+    final message = controller.errorMessage ?? successMessage;
+    if (message == null) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(controller.errorMessage!)),
+      SnackBar(content: Text(message)),
     );
   }());
 }

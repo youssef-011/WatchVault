@@ -1,50 +1,29 @@
-import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
 
-import '../../home/data/mock_media.dart';
-import '../domain/library_entry.dart';
+import '../domain/library_item.dart';
 import '../domain/library_repository.dart';
-import 'mock_library.dart';
 
 class InMemoryLibraryRepository implements LibraryRepository {
-  InMemoryLibraryRepository({
-    Iterable<MediaItem>? catalog,
-    Iterable<LibraryEntry>? entries,
-  })  : _catalog = List<MediaItem>.of(catalog ?? mockMedia),
-        _entries = List<LibraryEntry>.of(entries ?? mockLibrary);
+  InMemoryLibraryRepository({Iterable<LibraryItem>? initial})
+      : _items = List<LibraryItem>.of(initial ?? const []);
 
-  final List<MediaItem> _catalog;
-  final List<LibraryEntry> _entries;
+  final List<LibraryItem> _items;
 
   @override
-  Future<List<MediaItem>> loadCatalog() async => List<MediaItem>.of(_catalog);
+  Future<List<LibraryItem>> loadItems() async => List<LibraryItem>.of(_items);
 
   @override
-  Future<List<LibraryEntry>> loadEntries() async =>
-      List<LibraryEntry>.of(_entries);
-
-  @override
-  Future<void> saveEntry(LibraryEntry entry, {MediaItem? newMedia}) async {
-    if (newMedia != null) {
-      final mediaIndex = _catalog.indexWhere((item) => item.key == newMedia.key);
-      if (mediaIndex < 0) {
-        _catalog.add(newMedia);
-      } else {
-        _catalog[mediaIndex] = newMedia;
-      }
-    }
-
-    final entryIndex =
-        _entries.indexWhere((existing) => existing.mediaKey == entry.mediaKey);
-    if (entryIndex < 0) {
-      _entries.add(entry);
+  Future<void> save(LibraryItem item) async {
+    final index = _items.indexWhere((existing) => existing.key == item.key);
+    if (index < 0) {
+      _items.add(item);
     } else {
-      _entries[entryIndex] = entry;
+      _items[index] = item;
     }
   }
 
   @override
-  Future<void> removeEntry(MediaKey mediaKey) async {
-    _entries.removeWhere((entry) => entry.mediaKey == mediaKey);
+  Future<void> remove(MediaKey key) async {
+    _items.removeWhere((item) => item.key == key);
   }
 }

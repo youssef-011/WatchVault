@@ -4,29 +4,31 @@ import 'package:flutter/foundation.dart';
 import 'package:watchvault/core/models/load_status.dart';
 import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
+import 'package:watchvault/core/models/media_type.dart';
 
 import '../domain/add_title_result.dart';
 import '../domain/library_entry.dart';
+import '../domain/library_item.dart';
 import '../domain/library_repository.dart';
 import '../domain/watch_status.dart';
 
 class LibraryController extends ChangeNotifier {
   LibraryController({required this.repository}) {
-    _catalogView = UnmodifiableListView(_catalog);
-    _entriesView = UnmodifiableListView(_entries);
+    _itemsView = UnmodifiableListView(_items);
   }
 
   final LibraryRepository repository;
-  final List<MediaItem> _catalog = [];
-  final List<LibraryEntry> _entries = [];
-  late final List<MediaItem> _catalogView;
-  late final List<LibraryEntry> _entriesView;
+  final List<LibraryItem> _items = [];
+  late final List<LibraryItem> _itemsView;
+  final Map<MediaType, int> _nextNegativeId = {
+    MediaType.movie: -1,
+    MediaType.series: -1,
+  };
+  final Map<MediaKey, MediaKey> _manualSnapshotKeys = {};
   LoadStatus _loadState = LoadStatus.loading;
   String? _errorMessage;
-  int _nextNegativeId = -1;
 
-  List<MediaItem> get catalog => _catalogView;
-  List<LibraryEntry> get entries => _entriesView;
+  List<LibraryItem> get items => _itemsView;
   LoadStatus get loadState => _loadState;
   String? get errorMessage => _errorMessage;
 
@@ -34,56 +36,44 @@ class LibraryController extends ChangeNotifier {
     _loadState = LoadStatus.loading;
     _errorMessage = null;
     notifyListeners();
-
     try {
-      final catalog = await repository.loadCatalog();
-      final entries = await repository.loadEntries();
-      _catalog
+      final loaded = await repository.loadItems();
+      _items
         ..clear()
-        ..addAll(catalog);
-      _entries
-        ..clear()
-        ..addAll(entries);
+        ..addAll(loaded);
       _loadState = LoadStatus.ready;
       _errorMessage = null;
-      notifyListeners();
-    } catch (_) {
+    } on Object {
       _loadState = LoadStatus.error;
       _errorMessage = 'Unable to load your library. Please try again.';
-      notifyListeners();
     }
+    notifyListeners();
   }
 
-  List<LibraryEntry> entriesByStatus(WatchStatus status) =>
-      List<LibraryEntry>.unmodifiable(
-        _entries.where((entry) => entry.status == status),
+  LibraryItem? itemFor(MediaKey key) {
+    for (final item in _items) {
+      if (item.key == key) return item;
+    }
+    return null;
+  }
+
+  bool isInLibrary(MediaKey key) => itemFor(key) != null;
+
+  LibraryEntry? entryFor(MediaKey key) => itemFor(key)?.entry;
+
+  List<LibraryItem> itemsByStatus(WatchStatus status) =>
+      List<LibraryItem>.unmodifiable(
+        _items.where((item) => item.entry.status == status),
       );
 
-  MediaItem? mediaByKey(MediaKey key) {
-    for (final item in _catalog) {
-      if (item.key == key) {
-        return item;
-      }
-    }
-    return null;
-  }
-
-  LibraryEntry? entryFor(MediaKey mediaKey) {
-    for (final entry in _entries) {
-      if (entry.mediaKey == mediaKey) {
-        return entry;
-      }
-    }
-    return null;
-  }
-
   int countFor(WatchStatus status) =>
-      _entries.where((entry) => entry.status == status).length;
+      _items.where((item) => item.entry.status == status).length;
 
   double? get averageRating {
     var total = 0.0;
     var count = 0;
-    for (final entry in _entries) {
+    for (final item in _items) {
+      final entry = item.entry;
       if (entry.status == WatchStatus.watched && entry.userRating != null) {
         total += entry.userRating!;
         count++;
@@ -92,97 +82,57 @@ class LibraryController extends ChangeNotifier {
     return count == 0 ? null : total / count;
   }
 
-  Future<void> addTitle(AddTitleResult result) async {
-    final oldCatalog = List<MediaItem>.of(_catalog);
-    final oldEntries = List<LibraryEntry>.of(_entries);
-    while (_catalog.any((item) => item.id == _nextNegativeId)) {
-      _nextNegativeId--;
-    }
-    final id = _nextNegativeId--;
-    final item = result.mediaItem.copyWith(id: id);
-    final entry = LibraryEntry(
-      mediaKey: item.key,
-      status: result.libraryEntry.status,
-      userRating: result.libraryEntry.status == WatchStatus.watched
-          ? result.libraryEntry.userRating
-          : null,
-      addedAt: result.libraryEntry.addedAt,
-    );
-    _errorMessage = null;
-    _catalog.add(item);
-    _entries.add(entry);
-    notifyListeners();
-
-    try {
-      await repository.saveEntry(entry, newMedia: item);
-    } catch (_) {
-      _restore(oldCatalog, oldEntries);
-      _setMutationError();
-    }
-  }
-
-  Future<void> addExistingMedia(
-    MediaKey mediaKey, {
+  Future<void> add(
+    MediaItem media, {
     WatchStatus status = WatchStatus.wantToWatch,
   }) async {
-    final item = mediaByKey(mediaKey);
-    if (item == null || entryFor(mediaKey) != null) {
-      _errorMessage = null;
-      notifyListeners();
-      return;
-    }
-
-    final oldEntries = List<LibraryEntry>.of(_entries);
+    if (isInLibrary(media.key)) return;
     final entry = LibraryEntry(
-      mediaKey: mediaKey,
+      mediaKey: media.key,
       status: status,
       addedAt: DateTime.now(),
     );
-    _errorMessage = null;
-    _entries.add(entry);
-    notifyListeners();
-
-    try {
-      await repository.saveEntry(entry);
-    } catch (_) {
-      _entries
-        ..clear()
-        ..addAll(oldEntries);
-      _setMutationError();
-    }
+    await _saveOptimistically(LibraryItem(media: media, entry: entry));
   }
 
-  Future<void> setStatus(MediaKey mediaKey, WatchStatus status) async {
-    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
-    if (index < 0) {
-      _errorMessage = null;
-      notifyListeners();
-      return;
+  Future<void> addTitle(AddTitleResult result) async {
+    final media = result.mediaItem;
+    final previousSnapshotKey = _manualSnapshotKeys[media.key];
+    if (previousSnapshotKey != null && isInLibrary(previousSnapshotKey)) return;
+    var id = _nextNegativeId[media.type]!;
+    while (_items.any((item) => item.key == MediaKey(type: media.type, id: id))) {
+      id--;
     }
-
-    final oldEntries = List<LibraryEntry>.of(_entries);
-    final current = _entries[index];
-    final updated = LibraryEntry(
-      mediaKey: current.mediaKey,
-      status: status,
-      userRating: status == WatchStatus.watched ? current.userRating : null,
-      addedAt: current.addedAt,
+    _nextNegativeId[media.type] = id - 1;
+    final snapshot = media.copyWith(id: id);
+    _manualSnapshotKeys[media.key] = snapshot.key;
+    final sourceEntry = result.libraryEntry;
+    final entry = LibraryEntry(
+      mediaKey: snapshot.key,
+      status: sourceEntry.status,
+      userRating: sourceEntry.status == WatchStatus.watched
+          ? sourceEntry.userRating
+          : null,
+      addedAt: sourceEntry.addedAt,
     );
-    _errorMessage = null;
-    _entries[index] = updated;
-    notifyListeners();
-
-    try {
-      await repository.saveEntry(updated);
-    } catch (_) {
-      _entries
-        ..clear()
-        ..addAll(oldEntries);
-      _setMutationError();
-    }
+    if (isInLibrary(snapshot.key)) return;
+    await _saveOptimistically(LibraryItem(media: snapshot, entry: entry));
   }
 
-  Future<void> setRating(MediaKey mediaKey, double? rating) async {
+  Future<void> setStatus(MediaKey key, WatchStatus status) async {
+    final current = itemFor(key);
+    if (current == null) return;
+    final entry = LibraryEntry(
+      mediaKey: current.key,
+      status: status,
+      userRating:
+          status == WatchStatus.watched ? current.entry.userRating : null,
+      addedAt: current.entry.addedAt,
+    );
+    await _replaceOptimistically(current, current.copyWith(entry: entry));
+  }
+
+  Future<void> setRating(MediaKey key, double? rating) async {
     if (rating != null &&
         (!rating.isFinite ||
             rating < 0.5 ||
@@ -194,66 +144,67 @@ class LibraryController extends ChangeNotifier {
         'Must be null or a half-step from 0.5 to 5.0.',
       );
     }
-
-    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
-    if (index < 0 || _entries[index].status != WatchStatus.watched) {
-      _errorMessage = null;
-      notifyListeners();
-      return;
-    }
-
-    final oldEntries = List<LibraryEntry>.of(_entries);
-    final current = _entries[index];
-    final updated = LibraryEntry(
-      mediaKey: current.mediaKey,
-      status: current.status,
+    final current = itemFor(key);
+    if (current == null || current.entry.status != WatchStatus.watched) return;
+    final entry = LibraryEntry(
+      mediaKey: current.key,
+      status: current.entry.status,
       userRating: rating,
-      addedAt: current.addedAt,
+      addedAt: current.entry.addedAt,
     );
-    _errorMessage = null;
-    _entries[index] = updated;
-    notifyListeners();
+    await _replaceOptimistically(current, current.copyWith(entry: entry));
+  }
 
+  Future<void> remove(MediaKey key) async {
+    final index = _items.indexWhere((item) => item.key == key);
+    if (index < 0) return;
+    final oldItems = List<LibraryItem>.of(_items);
+    _items.removeAt(index);
+    _errorMessage = null;
+    notifyListeners();
     try {
-      await repository.saveEntry(updated);
-    } catch (_) {
-      _entries
-        ..clear()
-        ..addAll(oldEntries);
+      await repository.remove(key);
+    } on Object {
+      _restore(oldItems);
       _setMutationError();
     }
   }
 
-  Future<void> removeEntry(MediaKey mediaKey) async {
-    final index = _entries.indexWhere((entry) => entry.mediaKey == mediaKey);
-    if (index < 0) {
-      _errorMessage = null;
-      notifyListeners();
-      return;
-    }
-
-    final oldEntries = List<LibraryEntry>.of(_entries);
+  Future<void> _saveOptimistically(LibraryItem item) async {
+    if (isInLibrary(item.key)) return;
+    _items.add(item);
     _errorMessage = null;
-    _entries.removeAt(index);
     notifyListeners();
-
     try {
-      await repository.removeEntry(mediaKey);
-    } catch (_) {
-      _entries
-        ..clear()
-        ..addAll(oldEntries);
+      await repository.save(item);
+    } on Object {
+      _items.removeWhere((existing) => existing.key == item.key);
       _setMutationError();
     }
   }
 
-  void _restore(List<MediaItem> catalog, List<LibraryEntry> entries) {
-    _catalog
+  Future<void> _replaceOptimistically(
+    LibraryItem oldItem,
+    LibraryItem updated,
+  ) async {
+    final index = _items.indexOf(oldItem);
+    if (index < 0) return;
+    _items[index] = updated;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      await repository.save(updated);
+    } on Object {
+      final currentIndex = _items.indexWhere((item) => item.key == oldItem.key);
+      if (currentIndex >= 0) _items[currentIndex] = oldItem;
+      _setMutationError();
+    }
+  }
+
+  void _restore(List<LibraryItem> oldItems) {
+    _items
       ..clear()
-      ..addAll(catalog);
-    _entries
-      ..clear()
-      ..addAll(entries);
+      ..addAll(oldItems);
   }
 
   void _setMutationError() {

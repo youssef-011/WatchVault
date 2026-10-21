@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:watchvault/core/models/media_item.dart';
-import 'package:watchvault/core/models/media_key.dart';
 import 'package:watchvault/features/catalog/data/catalog_exception.dart';
 import 'package:watchvault/features/catalog/domain/catalog_repository.dart';
 import 'package:watchvault/features/catalog/presentation/catalog_exception_message.dart';
@@ -12,12 +11,10 @@ enum SearchResultsStatus { idle, loading, ready, error }
 class SearchResultsController extends ChangeNotifier {
   SearchResultsController({
     required this.catalog,
-    this.localItems = _noLocalItems,
     this.debounceDuration = const Duration(milliseconds: 400),
   });
 
   final CatalogRepository catalog;
-  final List<MediaItem> Function() localItems;
   final Duration debounceDuration;
   Timer? _timer;
   String _query = '';
@@ -62,17 +59,7 @@ class SearchResultsController extends ChangeNotifier {
     try {
       final catalogResults = await catalog.search(_query);
       if (token != _requestToken || isDisposed) return;
-      final normalizedQuery = _query.toLowerCase();
-      final localResults = localItems().where(
-        (item) => item.title.toLowerCase().contains(normalizedQuery),
-      );
-      final byKey = <MediaKey, MediaItem>{
-        for (final item in catalogResults) item.key: item,
-        for (final item in localResults) item.key: item,
-      };
-      final results = byKey.values.toList(growable: false);
-      if (token != _requestToken || isDisposed) return;
-      _results = List<MediaItem>.unmodifiable(results);
+      _results = List<MediaItem>.unmodifiable(catalogResults);
       _status = SearchResultsStatus.ready;
       _errorMessage = null;
     } on Object catch (error) {
@@ -95,5 +82,3 @@ class SearchResultsController extends ChangeNotifier {
     super.dispose();
   }
 }
-
-List<MediaItem> _noLocalItems() => const [];

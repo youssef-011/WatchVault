@@ -71,4 +71,19 @@ void main() {
     expect(controller.status, SearchResultsStatus.ready);
     expect(controller.results, isNotEmpty);
   });
+
+  test('catalog search does not include library-only manual titles', () async {
+    final repository = ControllableCatalogRepository();
+    final controller = SearchResultsController(
+      catalog: repository,
+      debounceDuration: Duration.zero,
+    );
+    addTearDown(controller.dispose);
+
+    controller.setQuery('private manual title');
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    expect(controller.status, SearchResultsStatus.ready);
+    expect(controller.results, isEmpty);
+  });
 }

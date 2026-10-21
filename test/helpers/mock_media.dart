@@ -112,15 +112,3 @@ const List<MediaItem> mockMedia = [
   ),
 ];
 
-List<MediaItem> get trending =>
-    List<MediaItem>.unmodifiable(mockMedia.take(6));
-
-List<MediaItem> get popularSeries => List<MediaItem>.unmodifiable(
-      mockMedia.where((item) => item.type == MediaType.series).take(6),
-    );
-
-List<MediaItem> get topRated {
-  final items = mockMedia.toList()
-    ..sort((a, b) => b.voteAverage!.compareTo(a.voteAverage!));
-  return List<MediaItem>.unmodifiable(items.take(6));
-}

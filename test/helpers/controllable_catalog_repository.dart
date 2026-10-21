@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
 import 'package:watchvault/features/catalog/data/catalog_exception.dart';
-import 'package:watchvault/features/catalog/data/fake_catalog_repository.dart';
 import 'package:watchvault/features/catalog/domain/media_details.dart';
+
+import 'fake_catalog_repository.dart';
 
 class ControllableCatalogRepository extends FakeCatalogRepository {
   final Set<String> failures = {};

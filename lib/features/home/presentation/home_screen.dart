@@ -12,6 +12,9 @@ import '../../../core/widgets/load_state_view.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../../core/widgets/section_header.dart';
+import '../../library/application/library_scope.dart';
+import '../../library/domain/watch_status.dart';
+import '../../library/domain/watch_status_label.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -139,16 +142,36 @@ class _MediaSection extends StatelessWidget {
             padding: EdgeInsetsDirectional.only(
               end: index == items.length - 1 ? 0 : AppSpacing.md,
             ),
-            child: MediaCard(
-              item: item,
-              heroTag: heroTag,
-              width: cardWidth,
-              onTap: () => Navigator.of(context).pushNamed(
-                AppRoutes.details,
-                arguments: DetailsRouteArguments(item: item, heroTag: heroTag),
-              ),
+            child: ListenableBuilder(
+              listenable: LibraryScope.of(context),
+              builder: (context, _) {
+                final library = LibraryScope.of(context);
+                return MediaCard(
+                  item: item,
+                  heroTag: heroTag,
+                  width: cardWidth,
+                  libraryStatusLabel:
+                      library.entryFor(item.key)?.status.label,
+                  libraryStatusIcon:
+                      _statusIcon(library.entryFor(item.key)?.status),
+                  onTap: () => Navigator.of(context).pushNamed(
+                    AppRoutes.details,
+                    arguments: DetailsRouteArguments(
+                      item: item,
+                      heroTag: heroTag,
+                    ),
+                  ),
+                );
+              },
             ),
           );
         },
       );
 }
+
+IconData? _statusIcon(WatchStatus? status) => switch (status) {
+      WatchStatus.wantToWatch => Icons.bookmark_border,
+      WatchStatus.watching => Icons.play_circle_outline,
+      WatchStatus.watched => Icons.check_circle_outline,
+      null => null,
+    };

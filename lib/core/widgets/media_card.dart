@@ -13,6 +13,8 @@ class MediaCard extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.userRating,
+    this.libraryStatusLabel,
+    this.libraryStatusIcon,
     this.width = 140,
   });
 
@@ -21,6 +23,8 @@ class MediaCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final double? userRating;
+  final String? libraryStatusLabel;
+  final IconData? libraryStatusIcon;
   final double? width;
 
   @override
@@ -77,6 +81,25 @@ class MediaCard extends StatelessWidget {
                           starColor: colorScheme.onTertiaryContainer,
                           semanticsLabel:
                               'Your rating ${userRating!.toStringAsFixed(1)}',
+                        ),
+                      ),
+                    if (libraryStatusLabel != null && libraryStatusIcon != null)
+                      Positioned(
+                        left: AppSpacing.sm,
+                        bottom: AppSpacing.sm,
+                        child: Tooltip(
+                          message: libraryStatusLabel!,
+                          child: Semantics(
+                            label: 'In your library: $libraryStatusLabel',
+                            child: CircleAvatar(
+                              radius: 16,
+                              backgroundColor:
+                                  colorScheme.secondaryContainer,
+                              foregroundColor:
+                                  colorScheme.onSecondaryContainer,
+                              child: Icon(libraryStatusIcon, size: 18),
+                            ),
+                          ),
                         ),
                       ),
                   ],

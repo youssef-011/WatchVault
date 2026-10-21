@@ -1,40 +1,38 @@
-import 'package:watchvault/core/models/media_item.dart';
 import 'package:watchvault/core/models/media_key.dart';
-import 'package:watchvault/features/library/data/in_memory_library_repository.dart';
-import 'package:watchvault/features/library/domain/library_entry.dart';
+import 'package:watchvault/features/library/domain/library_item.dart';
 import 'package:watchvault/features/library/domain/library_repository.dart';
 
 class FailingLibraryRepository implements LibraryRepository {
   FailingLibraryRepository({
+    Iterable<LibraryItem> initial = const [],
     this.failLoads = false,
     this.failMutations = true,
-  });
+  }) : _items = List<LibraryItem>.of(initial);
 
   final bool failLoads;
   final bool failMutations;
-  final InMemoryLibraryRepository _delegate = InMemoryLibraryRepository();
+  final List<LibraryItem> _items;
 
   @override
-  Future<List<MediaItem>> loadCatalog() {
+  Future<List<LibraryItem>> loadItems() async {
     if (failLoads) throw StateError('Repository load failed');
-    return _delegate.loadCatalog();
+    return List<LibraryItem>.of(_items);
   }
 
   @override
-  Future<List<LibraryEntry>> loadEntries() {
-    if (failLoads) throw StateError('Repository load failed');
-    return _delegate.loadEntries();
-  }
-
-  @override
-  Future<void> saveEntry(LibraryEntry entry, {MediaItem? newMedia}) async {
+  Future<void> save(LibraryItem item) async {
     if (failMutations) throw StateError('Repository save failed');
-    await _delegate.saveEntry(entry, newMedia: newMedia);
+    final index = _items.indexWhere((existing) => existing.key == item.key);
+    if (index < 0) {
+      _items.add(item);
+    } else {
+      _items[index] = item;
+    }
   }
 
   @override
-  Future<void> removeEntry(MediaKey mediaKey) async {
+  Future<void> remove(MediaKey key) async {
     if (failMutations) throw StateError('Repository remove failed');
-    await _delegate.removeEntry(mediaKey);
+    _items.removeWhere((item) => item.key == key);
   }
 }

@@ -4,10 +4,10 @@ import 'package:watchvault/core/router/app_routes.dart';
 import 'package:watchvault/core/router/details_route_arguments.dart';
 import 'package:watchvault/core/theme/app_theme.dart';
 import 'package:watchvault/features/details/presentation/details_screen.dart';
-import 'package:watchvault/features/home/data/mock_media.dart';
 import 'package:watchvault/features/library/application/library_scope.dart';
 
 import 'helpers/library_test_helpers.dart';
+import 'helpers/mock_media.dart';
 
 void main() {
   testWidgets('unknown named route shows NotFoundScreen', (tester) async {

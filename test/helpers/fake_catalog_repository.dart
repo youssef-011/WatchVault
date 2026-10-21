@@ -5,7 +5,7 @@ import 'package:watchvault/features/catalog/data/catalog_exception.dart';
 import 'package:watchvault/features/catalog/domain/catalog_repository.dart';
 import 'package:watchvault/features/catalog/domain/media_details.dart';
 
-import '../../home/data/mock_media.dart';
+import 'mock_media.dart';
 
 class FakeCatalogRepository implements CatalogRepository {
   FakeCatalogRepository({Iterable<MediaItem> items = mockMedia})

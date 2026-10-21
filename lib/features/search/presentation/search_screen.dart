@@ -10,6 +10,8 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/media_card.dart';
 import '../../../core/widgets/media_card_sizing.dart';
 import '../../library/application/library_scope.dart';
+import '../../library/domain/watch_status.dart';
+import '../../library/domain/watch_status_label.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -28,13 +30,8 @@ class _SearchScreenState extends State<SearchScreen> {
     super.didChangeDependencies();
     if (_initialized) return;
     _initialized = true;
-    final library = LibraryScope.of(context);
     _resultsController = SearchResultsController(
       catalog: CatalogScope.of(context),
-      localItems: () => library
-          .catalog
-          .where((item) => item.id < 0)
-          .toList(growable: false),
     );
   }
 
@@ -160,15 +157,32 @@ class _SearchScreenState extends State<SearchScreen> {
       LayoutBuilder(
         builder: (context, constraints) {
           final heroTag = 'search-${item.key.value}';
-          return MediaCard(
-            item: item,
-            heroTag: heroTag,
-            width: constraints.maxWidth,
-            onTap: () => Navigator.of(context).pushNamed(
-              AppRoutes.details,
-              arguments: DetailsRouteArguments(item: item, heroTag: heroTag),
-            ),
+          final library = LibraryScope.of(context);
+          return ListenableBuilder(
+            listenable: library,
+            builder: (context, _) {
+              final status = library.entryFor(item.key)?.status;
+              return MediaCard(
+                item: item,
+                heroTag: heroTag,
+                width: constraints.maxWidth,
+                libraryStatusLabel: status?.label,
+                libraryStatusIcon: _statusIcon(status),
+                onTap: () => Navigator.of(context).pushNamed(
+                  AppRoutes.details,
+                  arguments:
+                      DetailsRouteArguments(item: item, heroTag: heroTag),
+                ),
+              );
+            },
           );
         },
       );
+
+IconData? _statusIcon(WatchStatus? status) => switch (status) {
+      WatchStatus.wantToWatch => Icons.bookmark_border,
+      WatchStatus.watching => Icons.play_circle_outline,
+      WatchStatus.watched => Icons.check_circle_outline,
+      null => null,
+    };
 }

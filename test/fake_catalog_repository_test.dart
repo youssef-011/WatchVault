@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watchvault/core/models/media_key.dart';
 import 'package:watchvault/core/models/media_type.dart';
-import 'package:watchvault/features/catalog/data/fake_catalog_repository.dart';
-import 'package:watchvault/features/home/data/mock_media.dart';
+
+import 'helpers/fake_catalog_repository.dart';
+import 'helpers/mock_media.dart';
 
 void main() {
   test('fake catalog is backed by the curated mock media', () async {
